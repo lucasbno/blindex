@@ -5,10 +5,8 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-//import 'view/sign_up_view.dart';
 import 'controller/login_screen_controller.dart';
 import 'controller/sign_up_controller.dart';
-//import 'view/about_view.dart';
 
 final g = GetIt.instance;
 

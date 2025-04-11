@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../controller/login_screen_controller.dart';
 import 'package:get_it/get_it.dart';
 import '../view/home_view.dart';
@@ -65,10 +64,13 @@ class _LoginViewState extends State<LoginView> {
           children: [
             
             //Logo
-            SvgPicture.asset(
-              'assets/svg/placeholder-app-logo.svg',
-              width: 200,
-              height: 200,
+          Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.shield, size: 30, color: Colors.white),
             ),
 
             //Login card
@@ -174,7 +176,10 @@ class _LoginViewState extends State<LoginView> {
                 width: double.infinity, // Make button stretch
                 child: OutlinedButton(
                   onPressed: () {
-                    //Handle Sign Up Logic
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Theme.of(context).cardColor,
