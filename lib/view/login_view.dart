@@ -19,7 +19,6 @@ class _LoginViewState extends State<LoginView> {
   final loginController = GetIt.I.get<LoginScreenController>();
   
   bool _loginSuccess = false;
-  bool _hasAttemptedLogin = false;
 
   @override
   void initState() {
@@ -43,12 +42,8 @@ class _LoginViewState extends State<LoginView> {
       _loginSuccess = success;
     });
 
-    setState(() {
-      _hasAttemptedLogin = true;
-    });
-
     if (_loginSuccess) {
-      Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(milliseconds: 1000), () {
         if (!mounted) return;
 
         Navigator.pushReplacement(
@@ -64,7 +59,7 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Background color
       body: Center(
-        child: Column(
+        child: Builder(builder: (context) => Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 20,
           children: [
@@ -77,14 +72,15 @@ class _LoginViewState extends State<LoginView> {
             ),
 
             //Login card
-            logInForm(context),
+            _buildLogIn(context),
           ],
         ),
       ),
+    )
     );
   }
 
-  Widget logInForm(BuildContext context) {
+  Widget _buildLogIn(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0), // To avoid edges
       child: Card(
@@ -149,9 +145,21 @@ class _LoginViewState extends State<LoginView> {
 
               // [BM] Login Button
               SizedBox(
-                width: double.infinity, // Make the button stretch
+                width: double.infinity, // Make button stretch
                 child: ElevatedButton(
-                  onPressed: _onLoginPress,
+                  onPressed: () { _onLoginPress();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: _loginSuccess ? Colors.blue : Colors.red,
+                        content: Center(child: Text(
+                            _loginSuccess ? 'Login com sucesso!' : 'Login Invalido.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          )
+                        )
+                      )
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
                   ),
@@ -163,7 +171,7 @@ class _LoginViewState extends State<LoginView> {
 
               // Signup Button
               SizedBox(
-                width: double.infinity, // Make the button stretch
+                width: double.infinity, // Make button stretch
                 child: OutlinedButton(
                   onPressed: () {
                     //Handle Sign Up Logic
@@ -202,14 +210,6 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   child: Text('Esqueceu a Senha?', style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
                 )
-              ),
-
-              Center(
-                child: Text(
-                  _hasAttemptedLogin ? (_loginSuccess ? 'Login com sucesso!' : 'Login Invalido.') : '',
-                  style: TextStyle(color: _loginSuccess ? Colors.green : Colors.red),
-                  textAlign: TextAlign.center,
-                ),
               ),
             ],
           ),
