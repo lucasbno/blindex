@@ -1,8 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../controller/login_screen_controller.dart';
+import 'package:get_it/get_it.dart';
+import '../view/home_view.dart';
 
-class LoginView extends StatelessWidget {
-  const LoginView({super.key}); 
+
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
+
+  @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  final loginController = GetIt.I.get<LoginScreenController>();
+  
+  bool _loginSuccess = false;
+  bool _hasAttemptedLogin = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void _onLoginPress() {
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    final success = loginController.login(email, password);
+
+    setState(() {
+      _loginSuccess = success;
+    });
+
+    setState(() {
+      _hasAttemptedLogin = true;
+    });
+
+    if (_loginSuccess) {
+      Future.delayed(Duration(milliseconds: 500), () {
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +70,6 @@ class LoginView extends StatelessWidget {
           children: [
             
             //Logo
-            //TODO Make App Logo asset in .svg (vector) format
             SvgPicture.asset(
               'assets/svg/placeholder-app-logo.svg',
               width: 200,
@@ -37,20 +91,20 @@ class LoginView extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        elevation: 5, // Optional: Adds shadow to the card
-        color: Theme.of(context).cardColor, // Your card color
+        elevation: 5,
+        color: Theme.of(context).cardColor,
         child: Padding(
-          padding: const EdgeInsets.all(16.0), // Padding inside the card
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min, // Makes the column size fit content
-            crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
               Center(
                 child: Text(
                   'Log In',
                   style: Theme.of(context).textTheme.headlineMedium,
-                  textAlign: TextAlign.center, // Custom title style
+                  textAlign: TextAlign.center,
                 ),
               ),
 
@@ -58,6 +112,7 @@ class LoginView extends StatelessWidget {
 
               // Username TextField
               TextFormField(
+                controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'E-mail',
                   filled: true,
@@ -75,6 +130,7 @@ class LoginView extends StatelessWidget {
 
               // Password TextField
               TextFormField(
+                controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
@@ -91,13 +147,11 @@ class LoginView extends StatelessWidget {
 
               const SizedBox(height: 24), // Space before button
 
-              // Login Button
+              // [BM] Login Button
               SizedBox(
                 width: double.infinity, // Make the button stretch
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Handle login logic
-                  },
+                  onPressed: _onLoginPress,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
                   ),
@@ -144,10 +198,18 @@ class LoginView extends StatelessWidget {
                     // Add the functionality for password recovery here
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).primaryColor, // Use your accent color
+                    foregroundColor: Theme.of(context).primaryColor,
                   ),
-                  child: Text('Forgot your password?', style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
+                  child: Text('Esqueceu a Senha?', style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
                 )
+              ),
+
+              Center(
+                child: Text(
+                  _hasAttemptedLogin ? (_loginSuccess ? 'Login com sucesso!' : 'Login Invalido.') : '',
+                  style: TextStyle(color: _loginSuccess ? Colors.green : Colors.red),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),

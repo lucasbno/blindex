@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'view/login_view.dart';
+import 'controller/login_screen_controller.dart';
 
 final g = GetIt.instance;
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   g.registerSingleton<AppThemes>(AppThemes());
+  g.registerSingleton<LoginScreenController>(LoginScreenController());
+
   runApp(DevicePreview(builder: (context)=>const MainApp()));
 }
 
