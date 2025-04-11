@@ -1,24 +1,19 @@
+import 'package:blindex/controller/sign_up_controller.dart';
+import 'package:blindex/view/login_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import '../controller/login_screen_controller.dart';
 import 'package:get_it/get_it.dart';
-import '../view/home_view.dart';
+//import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:get_it/get_it.dart';
 
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class SignUpView extends StatefulWidget {
+  const SignUpView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<SignUpView> createState() => _SignUpViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  final loginController = GetIt.I.get<LoginScreenController>();
-  
-  bool _loginSuccess = false;
+class _SignUpViewState extends State<SignUpView> {
 
   @override
   void initState() {
@@ -27,28 +22,35 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
     super.dispose();
   }
 
-  void _onLoginPress() {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final pwdConfirmController = TextEditingController();
+
+  final signUpController = GetIt.I.get<SignUpController>();
+  
+  bool _signUpSuccess = false;
+
+  void _onSignUpPress() {
     final email = emailController.text;
     final password = passwordController.text;
+    final confirm_pwd = pwdConfirmController.text;
 
-    final success = loginController.login(email, password);
+    final success = signUpController.signUp(email, password, confirm_pwd);
 
     setState(() {
-      _loginSuccess = success;
+      _signUpSuccess = success;
     });
 
-    if (_loginSuccess) {
+    if (_signUpSuccess) {
       Future.delayed(Duration(milliseconds: 1000), () {
         if (!mounted) return;
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => LoginView()),
         );
       });
     }
@@ -59,28 +61,13 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Background color
       body: Center(
-        child: Builder(builder: (context) => Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 20,
-          children: [
-            
-            //Logo
-            SvgPicture.asset(
-              'assets/svg/placeholder-app-logo.svg',
-              width: 200,
-              height: 200,
-            ),
-
-            //Login card
-            _buildLogIn(context),
-          ],
+        child: Builder(builder: (context) => _buildSignUp(context),
         ),
       ),
-    )
     );
   }
 
-  Widget _buildLogIn(BuildContext context) {
+  Widget _buildSignUp(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0), // To avoid edges
       child: Card(
@@ -98,7 +85,7 @@ class _LoginViewState extends State<LoginView> {
               // Title
               Center(
                 child: Text(
-                  'Log In',
+                  'Sign Up',
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -141,75 +128,48 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
 
+              const SizedBox(height: 20), // Space between fields
+
+              // Password Confirm TextField
+              TextFormField(
+                controller: pwdConfirmController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Confirm Password',
+                  filled: true,
+                  fillColor: Theme.of(context).inputDecorationTheme.fillColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 24), // Space before button
 
-              // [BM] Login Button
+              // Signup Button
               SizedBox(
                 width: double.infinity, // Make button stretch
                 child: ElevatedButton(
-                  onPressed: () { _onLoginPress();
+                  onPressed: () { _onSignUpPress();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        backgroundColor: _loginSuccess ? Colors.blue : Colors.red,
+                        backgroundColor: _signUpSuccess ? Colors.blue : Colors.red,
                         content: Center(child: Text(
-                            _loginSuccess ? 'Login com sucesso!' : 'Login Invalido.',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          )
-                        )
+                          _signUpSuccess ? 'Cadastro com sucesso!' : 'Cadastro Invalido.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ))
                       )
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
                   ),
-                  child: Text('Log In'),
+                  child: Text('Sign Up'),
                 ),
-              ),
-
-              SizedBox(height: 12),
-
-              // Signup Button
-              SizedBox(
-                width: double.infinity, // Make button stretch
-                child: OutlinedButton(
-                  onPressed: () {
-                    //Handle Sign Up Logic
-                  },
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Theme.of(context).cardColor,
-                    side: BorderSide(
-                      color: Theme.of(context).primaryColor,
-                      width: 2,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 20)
-                  ), 
-                  child: Text(
-                    'Sign Up',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 24),
-
-              //Forgot Password TextButton
-
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    // Add the functionality for password recovery here
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).primaryColor,
-                  ),
-                  child: Text('Esqueceu a Senha?', style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
-                )
               ),
             ],
           ),
