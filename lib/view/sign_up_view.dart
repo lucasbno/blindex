@@ -85,7 +85,7 @@ class _SignUpViewState extends State<SignUpView> {
               // Title
               Center(
                 child: Text(
-                  'Sign Up',
+                  'Cadastre-se',
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -106,6 +106,7 @@ class _SignUpViewState extends State<SignUpView> {
                       color: Theme.of(context).primaryColor, // Accent color for border
                     ),
                   ),
+                  prefixIcon: const Icon(Icons.email)
                 ),
               ),
 
@@ -125,6 +126,7 @@ class _SignUpViewState extends State<SignUpView> {
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
+                  prefixIcon: const Icon(Icons.lock)
                 ),
               ),
 
@@ -144,6 +146,7 @@ class _SignUpViewState extends State<SignUpView> {
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
+                  prefixIcon: const Icon(Icons.lock_outline)
                 ),
               ),
 
