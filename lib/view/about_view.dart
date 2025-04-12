@@ -6,134 +6,253 @@ class AboutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    body: 
-        Builder(builder: (context) => 
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.shield, size: 30, color: Colors.white),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Blindex',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                'by Data Liquid Labs',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Version 0.0.1 Debug',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              
-              SizedBox(height: 24),
-              
-              // Description
-              const Text(
-                'Blindex é um gerenciador de senhas focused on simplicidade e uso facíl.',
-                textAlign: TextAlign.center,
-                style: TextStyle(height: 1.5),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Features
-              _buildSection(
-                title: 'Features',
-                context: context,
-                child: Column(
-                  children: [
-                    _buildFeatureRow(icon: Icons.lock, text: 'Encriptação de ponta a ponta', context: context),
-                    _buildFeatureRow(icon: Icons.code, text: 'Codigo aberto', context: context),
-                  ],
-                ),
-              ),
-              
-              // Time
-              _buildSection(
-                title: 'Desenvolvido por',
-                context: context,
-                child: Column(
-                  children: [
-                    _buildTeamMember(name: 'Lucas Bueno Ricardo', email: 'lucas.ricardo@fatec.sp.gov.br', context: context),
-                    _buildTeamMember(name: 'Gustavo Miguel Santana', email: 'gustavo.santana19@fatec.sp.gov.br', context: context),
-                  ],
-                ),
-              ),
-              
-              // Footer
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryColor),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            // Logo e Informações do App
+            Center(
+              child: Column(
                 children: [
-                  TextButton(
-                    onPressed: () {},
-                    child: Text('Politica de Privacidade', style: Theme.of(context).textTheme.bodyMedium),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(
+                            context,
+                          ).primaryColor.withAlpha(51), // ~0.2 opacity (51/255)
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.shield,
+                      size: 40,
+                      color: Colors.white,
+                    ),
                   ),
-                  const SizedBox(width: 16),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text('Termos de Serviço', style: Theme.of(context).textTheme.bodyMedium),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Blindex',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
                   ),
                 ],
               ),
-            ]
-          ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Descrição
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'Blindex é um gerenciador de senhas focado em simplicidade e uso fácil.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  height: 1.4,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Funcionalidades
+            _buildCompactSection(
+              title: 'Funcionalidades',
+              context: context,
+              child: Column(
+                children: [
+                  _buildFeatureRow(
+                    icon: Icons.lock,
+                    text: 'Criptografia de ponta a ponta',
+                    context: context,
+                  ),
+                  _buildFeatureRow(
+                    icon: Icons.code,
+                    text: 'Código aberto',
+                    context: context,
+                  ),
+                  _buildFeatureRow(
+                    icon: Icons.security,
+                    text: 'Segurança avançada',
+                    context: context,
+                  ),
+                  _buildFeatureRow(
+                    icon: Icons.devices,
+                    text: 'Multi-plataforma',
+                    context: context,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Equipe
+            _buildCompactSection(
+              title: 'Desenvolvido por',
+              context: context,
+              child: Column(
+                children: [
+                  _buildCompactTeamMember(
+                    name: 'Lucas Bueno Ricardo',
+                    email: 'lucas.ricardo@fatec.sp.gov.br',
+                    context: context,
+                  ),
+                  _buildCompactTeamMember(
+                    name: 'Gustavo Miguel Santana',
+                    email: 'gustavo.santana19@fatec.sp.gov.br',
+                    context: context,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 
-  Widget _buildSection({required String title, required Widget child, required BuildContext context}) {
+  Widget _buildCompactSection({
+    required String title,
+    required Widget child,
+    required BuildContext context,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 8),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodySmall,
+          Container(
+            margin: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          child,
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(13), // ~0.05 opacity (13/255)
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: child,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildFeatureRow({required IconData icon, required String text, required BuildContext context}) {
+  Widget _buildFeatureRow({
+    required IconData icon,
+    required String text,
+    required BuildContext context,
+  }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: Theme.of(context).primaryColor),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).primaryColor.withAlpha(26), // ~0.1 opacity (26/255)
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 18, color: Theme.of(context).primaryColor),
+          ),
           const SizedBox(width: 12),
-          Expanded(child: Text(text)),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTeamMember({required String name, required String email, required BuildContext context}) {
+  Widget _buildCompactTeamMember({
+    required String name,
+    required String email,
+    required BuildContext context,
+  }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
         children: [
-          Text(
-            name,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).primaryColor.withAlpha(26), // ~0.1 opacity (26/255)
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                name.substring(0, 1),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 8),
-          Text(email, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  email,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
