@@ -30,10 +30,7 @@ class ReportsController extends ChangeNotifier {
     List<Map<String, dynamic>> reusedGroups = [];
     passwordGroups.forEach((pwValue, pwList) {
       if (pwList.length > 1) {
-        reusedGroups.add({
-          'password': pwValue,
-          'accounts': pwList,
-        });
+        reusedGroups.add({'password': pwValue, 'accounts': pwList});
       }
     });
 
@@ -50,13 +47,13 @@ class ReportsController extends ChangeNotifier {
     }
 
     int totalIssues = weakPasswords.length;
-    
+
     for (var group in reusedPasswords) {
       totalIssues += (group['accounts'] as List).length - 1;
     }
-    
+    //
     double score = 100 - ((totalIssues / allPasswords.length) * 100);
-    
+
     return score.clamp(0, 100);
   }
 
@@ -72,7 +69,7 @@ class ReportsController extends ChangeNotifier {
 
   List<String> getPasswordWeaknesses(String password) {
     List<String> weaknesses = [];
-    
+
     if (password.length < 8) {
       weaknesses.add('Menos de 8 caracteres');
     }
