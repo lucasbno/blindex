@@ -15,8 +15,8 @@ void main() {
 
   g.registerSingleton<AppThemes>(AppThemes());
   g.registerSingleton<UserRepository>(UserRepository());
-  g.registerSingleton<SignUpController>(SignUpController(userRepository: UserRepository()));
-  g.registerSingleton<LoginScreenController>(LoginScreenController());
+  g.registerSingleton<SignUpController>(SignUpController(GetIt.I.get<UserRepository>()));
+  g.registerSingleton<LoginScreenController>(LoginScreenController(GetIt.I.get<UserRepository>()));
 
   runApp(DevicePreview(builder: (context)=>const MainApp()));
 }
