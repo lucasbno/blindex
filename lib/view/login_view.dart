@@ -19,6 +19,7 @@ class _LoginViewState extends State<LoginView> {
   final loginController = GetIt.I.get<LoginScreenController>();
   
   bool _loginSuccess = false;
+  bool passwordHidden = true;
 
   @override
   void initState() {
@@ -101,7 +102,7 @@ class _LoginViewState extends State<LoginView> {
               // Title
               Center(
                 child: Text(
-                  'Log In',
+                  'Entrar',
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -122,6 +123,7 @@ class _LoginViewState extends State<LoginView> {
                       color: Theme.of(context).primaryColor, // Accent color for border
                     ),
                   ),
+                  prefixIcon: Icon(Icons.email)
                 ),
               ),
 
@@ -130,9 +132,9 @@ class _LoginViewState extends State<LoginView> {
               // Password TextField
               TextFormField(
                 controller: passwordController,
-                obscureText: true,
+                obscureText: passwordHidden,
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Senha',
                   filled: true,
                   fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                   border: OutlineInputBorder(
@@ -141,6 +143,9 @@ class _LoginViewState extends State<LoginView> {
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
+                  prefixIcon: Icon(Icons.lock),
+                  suffixIcon: IconButton(onPressed: () { setState(() {passwordHidden = !passwordHidden; }); }, 
+                  icon: passwordHidden ?  Icon(Icons.remove_red_eye) : Icon(Icons.remove_red_eye_outlined))
                 ),
               ),
 
@@ -166,7 +171,7 @@ class _LoginViewState extends State<LoginView> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
                   ),
-                  child: Text('Log In'),
+                  child: Text('Entrar'),
                 ),
               ),
 
@@ -194,7 +199,7 @@ class _LoginViewState extends State<LoginView> {
                     padding: const EdgeInsets.symmetric(vertical: 20)
                   ), 
                   child: Text(
-                    'Sign Up',
+                    'Cadastre-se',
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
                     ),
