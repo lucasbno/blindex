@@ -6,11 +6,9 @@ class User {
   final String email;
   final String passwordHash;
 
-  // Regular constructor that hashes the password
   User({required this.name, required this.email, required this.phoneNumber, required String password})
       : passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 
-  // Add a named constructor for creating with an existing hash
   User.withExistingHash({
     required this.name, 
     required this.email, 
@@ -18,15 +16,13 @@ class User {
     required this.passwordHash
   });
 
-  // Fixed copyWith method
   User copyWith({
     String? name,
     String? phoneNumber,
     String? email,
-    String? newPassword,  // Changed to newPassword to make intent clear
+    String? newPassword,
   }) {
     if (newPassword != null) {
-      // If a new password is provided, hash it
       return User(
         name: name ?? this.name,
         phoneNumber: phoneNumber ?? this.phoneNumber,
@@ -34,7 +30,6 @@ class User {
         password: newPassword,
       );
     } else {
-      // If no new password, keep the existing hash
       return User.withExistingHash(
         name: name ?? this.name,
         phoneNumber: phoneNumber ?? this.phoneNumber,

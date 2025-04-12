@@ -2,7 +2,6 @@ import 'package:blindex/controller/pwd_recover_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-// Define the possible states for password recovery flow
 enum PasswordRecoveryState {
   emailEntry,
   validationCode,
@@ -25,16 +24,12 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
 
   final forgotPwdController = GetIt.I.get<PwdRecoverController>();
 
-  // Current state in the recovery flow
   PasswordRecoveryState _currentState = PasswordRecoveryState.emailEntry;
   
-  // Error messages
   String? _errorMessage;
   
-  // Store user email for the flow
   String _userEmail = '';
 
-  //Password hiders
   bool passwordHidden = true;
   bool passwordConfirmHidden = true;
 
@@ -47,7 +42,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
     super.dispose();
   }
 
-  // Handle email submission
   void _submitEmail() {
     setState(() {
       _errorMessage = null;
@@ -62,11 +56,9 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
       return;
     }
     
-    // Validate email with controller
     final isValid = forgotPwdController.checkUser(_userEmail);
     
     if (isValid) {
-      // Move to next state if email is valid
       setState(() {
         _currentState = PasswordRecoveryState.validationCode;
       });
@@ -77,7 +69,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
     }
   }
 
-  // Handle validation code submission
   void _submitValidationCode() {
     setState(() {
       _errorMessage = null;
@@ -92,11 +83,9 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
       return;
     }
     
-    // Validate code with controller
     final isValid = forgotPwdController.checkValidation(code);
     
     if (isValid) {
-      // Move to password reset state if code is valid
       setState(() {
         _currentState = PasswordRecoveryState.newPassword;
       });
@@ -107,7 +96,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
     }
   }
 
-  // Handle password reset
   void _resetPassword() {
     setState(() {
       _errorMessage = null;
@@ -130,7 +118,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
       return;
     }
     
-    // Reset password with controller
     final success = forgotPwdController.resetPassword(_userEmail, password, confirmPassword);
     
     if (success) {
@@ -144,7 +131,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
     }
   }
 
-  // Return to login screen
   void _returnToLogin() {
     Navigator.of(context).pop();
   }

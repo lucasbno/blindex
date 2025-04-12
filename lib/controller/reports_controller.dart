@@ -51,7 +51,7 @@ class ReportsController extends ChangeNotifier {
     for (var group in reusedPasswords) {
       totalIssues += (group['accounts'] as List).length - 1;
     }
-    //
+    
     double score = 100 - ((totalIssues / allPasswords.length) * 100);
 
     return score.clamp(0, 100);
