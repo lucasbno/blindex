@@ -182,10 +182,7 @@ class _LoginViewState extends State<LoginView> {
                 width: double.infinity, // Make button stretch
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignUpView()),
-                    );
+                    Navigator.pushNamed(context, '/signUp');
                   },
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Theme.of(context).cardColor,
@@ -214,7 +211,7 @@ class _LoginViewState extends State<LoginView> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    // Add the functionality for password recovery here
+                    Navigator.pushNamed(context, '/forgot');
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Theme.of(context).primaryColor,
