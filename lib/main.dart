@@ -1,6 +1,10 @@
+import 'package:blindex/controller/pwd_recover_controller.dart';
 import 'package:blindex/repository/user_repository.dart';
 import 'package:blindex/theme/app_themes.dart';
+import 'package:blindex/view/about_view.dart';
+import 'package:blindex/view/forgot_pwd_view.dart';
 import 'package:blindex/view/login_view.dart';
+import 'package:blindex/view/sign_up_view.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -15,6 +19,7 @@ void main() {
 
   g.registerSingleton<AppThemes>(AppThemes());
   g.registerSingleton<UserRepository>(UserRepository());
+  g.registerSingleton<PwdRecoverController>(PwdRecoverController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<SignUpController>(SignUpController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<LoginScreenController>(LoginScreenController(GetIt.I.get<UserRepository>()));
 
@@ -34,6 +39,12 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       title: 'Blindex',
       home: LoginView(),
+      routes: {
+        '/about': (context) => const AboutView(),
+        '/signUp': (context) => const SignUpView(),
+        '/login': (context) => const LoginView(),
+        '/forgot': (context) => const ForgotPwdView(),
+      },
     );
   }
 }

@@ -3,8 +3,12 @@ import '../model/user_model.dart';
 
 
 class UserRepository extends ChangeNotifier {
-  final List<User?> users = [
+  List<User?> users = [
     User(email: 'alice@example.com', password: 'password123'),
     User(email: 'bob@example.com', password: 'hunter2')
   ];
+
+  void updateUser(User updatedUser) {
+    users = users.map( (u) => u?.email == updatedUser.email ? updatedUser : u).toList();
+  }
 }
