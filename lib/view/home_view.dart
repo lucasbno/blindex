@@ -1,6 +1,6 @@
 import 'package:blindex/components/app_bottom_bar.dart';
 import 'package:blindex/model/password.dart';
-import 'package:blindex/view/delete_password.dart';
+import 'package:blindex/view/delete_password_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
