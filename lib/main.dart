@@ -8,9 +8,11 @@ import 'package:blindex/view/sign_up_view.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
+import 'package:blindex/view/profile_view.dart';
 import 'controller/login_screen_controller.dart';
 import 'controller/sign_up_controller.dart';
+import 'package:blindex/theme/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 final g = GetIt.instance;
 
@@ -23,7 +25,16 @@ void main() {
   g.registerSingleton<SignUpController>(SignUpController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<LoginScreenController>(LoginScreenController(GetIt.I.get<UserRepository>()));
 
-  runApp(DevicePreview(builder: (context)=>const MainApp()));
+  g.registerSingleton<ThemeProvider>(ThemeProvider());
+
+  runApp(
+    DevicePreview(
+      builder: (context) => ChangeNotifierProvider.value(
+        value: g<ThemeProvider>(),
+        child: const MainApp(),
+      ),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -31,12 +42,14 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       locale: DevicePreview.locale(context),
       theme: AppThemes.lightTheme,  
       darkTheme: AppThemes.darkTheme,  
-      themeMode: ThemeMode.system,
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       title: 'Blindex',
       home: LoginView(),
       routes: {
@@ -44,6 +57,7 @@ class MainApp extends StatelessWidget {
         '/signUp': (context) => const SignUpView(),
         '/login': (context) => const LoginView(),
         '/forgot': (context) => const ForgotPwdView(),
+        '/profile': (context) => const ProfileView()
       },
     );
   }
