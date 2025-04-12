@@ -1,3 +1,4 @@
+import 'package:blindex/components/app_bottom_bar.dart';
 import 'package:blindex/model/user_model.dart';
 import 'package:blindex/repository/user_repository.dart';
 import 'package:blindex/theme/app_themes.dart';
@@ -11,21 +12,14 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final userRepository = GetIt.I<UserRepository>();
     final user = userRepository.users[0];
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text('Perfil', style: Theme.of(context).textTheme.titleLarge),
-        elevation: 0,
-        backgroundColor: Theme.of(context).cardColor,
-        foregroundColor: AppColors.textColor(context),
-      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 48.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -62,6 +56,9 @@ class ProfileView extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: const AppBottomBar(
+        currentScreen: '/profile',
       ),
     );
   }
@@ -209,7 +206,7 @@ class ProfileView extends StatelessWidget {
       children: [
         ElevatedButton(
           onPressed: () {
-            // Edit profile action
+            Navigator.of(context).pushNamed('/edit-profile');
           },
           style: ElevatedButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
@@ -219,7 +216,28 @@ class ProfileView extends StatelessWidget {
         const SizedBox(height: 12),
         OutlinedButton(
           onPressed: () {
-            // Log out action
+            Navigator.of(context).pushNamed('/about');
+          },
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            side: BorderSide(color: AppColors.accent(context)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.info_outline, size: 20),
+              const SizedBox(width: 8),
+              const Text('Sobre o App'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton(
+          onPressed: () {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/login',
+              (route) => false,
+            );
           },
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
