@@ -1,4 +1,3 @@
-import 'package:blindex/view/sign_up_view.dart';
 import 'package:flutter/material.dart';
 import '../controller/login_screen_controller.dart';
 import 'package:get_it/get_it.dart';
@@ -19,6 +18,7 @@ class _LoginViewState extends State<LoginView> {
   final loginController = GetIt.I.get<LoginScreenController>();
   
   bool _loginSuccess = false;
+  bool passwordHidden = true;
 
   @override
   void initState() {
@@ -101,7 +101,7 @@ class _LoginViewState extends State<LoginView> {
               // Title
               Center(
                 child: Text(
-                  'Log In',
+                  'Entrar',
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -122,6 +122,7 @@ class _LoginViewState extends State<LoginView> {
                       color: Theme.of(context).primaryColor, // Accent color for border
                     ),
                   ),
+                  prefixIcon: Icon(Icons.email)
                 ),
               ),
 
@@ -130,9 +131,9 @@ class _LoginViewState extends State<LoginView> {
               // Password TextField
               TextFormField(
                 controller: passwordController,
-                obscureText: true,
+                obscureText: passwordHidden,
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Senha',
                   filled: true,
                   fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                   border: OutlineInputBorder(
@@ -141,6 +142,9 @@ class _LoginViewState extends State<LoginView> {
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
+                  prefixIcon: Icon(Icons.lock),
+                  suffixIcon: IconButton(onPressed: () { setState(() {passwordHidden = !passwordHidden; }); }, 
+                  icon: passwordHidden ?  Icon(Icons.remove_red_eye) : Icon(Icons.remove_red_eye_outlined))
                 ),
               ),
 
@@ -166,7 +170,7 @@ class _LoginViewState extends State<LoginView> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
                   ),
-                  child: Text('Log In'),
+                  child: Text('Entrar'),
                 ),
               ),
 
@@ -177,10 +181,7 @@ class _LoginViewState extends State<LoginView> {
                 width: double.infinity, // Make button stretch
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignUpView()),
-                    );
+                    Navigator.pushNamed(context, '/signUp');
                   },
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Theme.of(context).cardColor,
@@ -194,7 +195,7 @@ class _LoginViewState extends State<LoginView> {
                     padding: const EdgeInsets.symmetric(vertical: 20)
                   ), 
                   child: Text(
-                    'Sign Up',
+                    'Cadastre-se',
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
                     ),
@@ -209,7 +210,7 @@ class _LoginViewState extends State<LoginView> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    // Add the functionality for password recovery here
+                    Navigator.pushNamed(context, '/forgot');
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Theme.of(context).primaryColor,

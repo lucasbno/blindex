@@ -8,7 +8,7 @@ class SignUpController extends ChangeNotifier {
 
   SignUpController(this.userRepository);
 
-  bool signUp(String email, String password, String passwordConfirm) {
+  bool signUp(String name, String phoneNumber, String email, String password, String passwordConfirm) {
     final users = userRepository.users;
       
     final userExists = users.any(
@@ -19,7 +19,7 @@ class SignUpController extends ChangeNotifier {
 
     if (password != passwordConfirm) return false;
 
-    final newUser = User(email: email, password: password);
+    final newUser = User(name: name, email: email, phoneNumber: phoneNumber, password: password);
     users.add(newUser);
 
     return true;
