@@ -1,4 +1,3 @@
-import 'package:blindex/view/sign_up_view.dart';
 import 'package:flutter/material.dart';
 import '../controller/login_screen_controller.dart';
 import 'package:get_it/get_it.dart';
