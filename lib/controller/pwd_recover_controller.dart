@@ -1,11 +1,8 @@
-import 'package:bcrypt/bcrypt.dart';
 import 'package:blindex/model/user_model.dart';
 import 'package:blindex/repository/user_repository.dart';
 import 'package:flutter/material.dart';
 
-
 class PwdRecoverController extends ChangeNotifier {
-
   final UserRepository userRepository;
 
   PwdRecoverController(this.userRepository);
@@ -33,12 +30,14 @@ class PwdRecoverController extends ChangeNotifier {
       orElse: () => null,
     );
 
-    if (user == null && newPassword != passwordConfirm) return false;
+    // Check if user exists and passwords match
+    if (user == null || newPassword != passwordConfirm) return false;
 
-    if (user!.checkPassword(newPassword)) return false;
+    // Check if new password is the same as the old one
+    if (user.checkPassword(newPassword)) return false;
 
-    final passwordHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-    User updatedUser = user.copyWith(passwordHash: passwordHash);
+    // Use the updated copyWith method with newPassword parameter
+    User updatedUser = user.copyWith(newPassword: newPassword);
 
     userRepository.updateUser(updatedUser);
 

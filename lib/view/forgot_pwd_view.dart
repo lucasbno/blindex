@@ -34,6 +34,10 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
   // Store user email for the flow
   String _userEmail = '';
 
+  //Password hiders
+  bool passwordHidden = true;
+  bool passwordConfirmHidden = true;
+
   @override
   void dispose() {
     emailController.dispose();
@@ -354,7 +358,7 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
             const SizedBox(height: 24),
             TextFormField(
               controller: passwordController,
-              obscureText: true,
+              obscureText: passwordHidden,
               decoration: InputDecoration(
                 labelText: 'Nova Senha',
                 filled: true,
@@ -366,12 +370,14 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
                   ),
                 ),
                 prefixIcon: const Icon(Icons.lock),
+                suffixIcon: IconButton(onPressed: () { setState(() {passwordHidden = !passwordHidden; }); }, 
+                  icon: passwordHidden ?  Icon(Icons.remove_red_eye) : Icon(Icons.remove_red_eye_outlined))
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: confirmPwdController,
-              obscureText: true,
+              obscureText: passwordConfirmHidden,
               decoration: InputDecoration(
                 labelText: 'Confirmar Nova Senha',
                 filled: true,
@@ -383,6 +389,8 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
                   ),
                 ),
                 prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(onPressed: () { setState(() {passwordConfirmHidden = !passwordConfirmHidden; }); }, 
+                  icon: passwordConfirmHidden ?  Icon(Icons.remove_red_eye) : Icon(Icons.remove_red_eye_outlined))
               ),
             ),
             if (_errorMessage != null)
