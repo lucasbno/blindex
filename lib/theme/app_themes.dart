@@ -1,21 +1,18 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Light Theme
-  static const lightBackground = Color(0xFFF8F8F8);
+  // Light Theme Colors
+  static const lightBackground = Color(0xFFF5F7FA);
   static const lightCardBackground = Colors.white;
-  static const lightAccent = Color(0xFFFF9800);
-  static const lightTextColor = Color(0xFF333333);
+  static const lightAccent = Color(0xFF4285F4);
+  static const lightTextColor = Color(0xFF202124);
 
-  // Dark Theme
-  static const darkBackground = Color(0xFF121212);
-  static const darkCardBackground = Color(0xFF1E1E1E);
-  static const darkAccent = Color(0xFFFF9800);
-  static const darkTextColor = Color(0xFFF0F0F0);
+  // Dark Theme Colors
+  static const darkBackground = Color(0xFF1A1D21);
+  static const darkCardBackground = Color(0xFF252A31);
+  static const darkAccent = Color(0xFF8AB4F8);
+  static const darkTextColor = Color(0xFFE8EAED);
 
-  // Getter for colors based on theme
   static Color background(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
         ? darkBackground
@@ -80,7 +77,7 @@ class AppThemes {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.lightAccent,
-        foregroundColor: AppColors.lightTextColor,
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -89,7 +86,7 @@ class AppThemes {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.lightTextColor,
+        foregroundColor: AppColors.lightAccent,
         side: const BorderSide(color: AppColors.lightAccent, width: 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -146,7 +143,7 @@ class AppThemes {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.darkTextColor,
+        foregroundColor: AppColors.darkAccent,
         side: const BorderSide(color: AppColors.darkAccent, width: 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
