@@ -1,14 +1,22 @@
 import 'package:bcrypt/bcrypt.dart';
 
 class User {
-  String? email;
-  final String? _passwordHash;
+  final String email;
+  final String passwordHash;
 
-  User({this.email, required String password})
-      : _passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+  User({required this.email, required String password})
+      : passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+
+  User copyWith({
+    String? email,
+    String? passwordHash,
+    }) {
+      return User(
+      email: email ?? this.email, 
+      password: passwordHash ?? this.passwordHash);
+    }
 
   bool checkPassword(String password) {
-    return BCrypt.checkpw(password, _passwordHash ?? '');
+    return BCrypt.checkpw(password, passwordHash ?? '');
   }
-
 }

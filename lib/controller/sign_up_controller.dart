@@ -6,7 +6,7 @@ class SignUpController extends ChangeNotifier {
 
   final UserRepository userRepository;
 
-  SignUpController({required this.userRepository});
+  SignUpController(this.userRepository);
 
   bool signUp(String email, String password, String passwordConfirm) {
     final users = userRepository.users;
