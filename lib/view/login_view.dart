@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controller/login_screen_controller.dart';
 import 'package:get_it/get_it.dart';
-import '../view/home_view.dart';
-
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -16,7 +14,7 @@ class _LoginViewState extends State<LoginView> {
   final passwordController = TextEditingController();
 
   final loginController = GetIt.I.get<LoginScreenController>();
-  
+
   bool _loginSuccess = false;
   bool passwordHidden = true;
 
@@ -43,43 +41,40 @@ class _LoginViewState extends State<LoginView> {
     });
 
     if (_loginSuccess) {
-      Future.delayed(Duration(milliseconds: 1000), () {
-        if (!mounted) return;
+      if (!mounted) return;
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
-      });
+      Navigator.pushNamed(context, '/passwords');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Background color
+      backgroundColor:
+          Theme.of(context).scaffoldBackgroundColor, // Background color
       body: Center(
-        child: Builder(builder: (context) => Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 20,
-          children: [
-            
-            //Logo
-          Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.shield, size: 30, color: Colors.white),
-            ),
+        child: Builder(
+          builder:
+              (context) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 20,
+                children: [
+                  //Logo
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.shield, size: 30, color: Colors.white),
+                  ),
 
-            //Login card
-            _buildLogIn(context),
-          ],
+                  //Login card
+                  _buildLogIn(context),
+                ],
+              ),
         ),
       ),
-    )
     );
   }
 
@@ -87,9 +82,7 @@ class _LoginViewState extends State<LoginView> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0), // To avoid edges
       child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 5,
         color: Theme.of(context).cardColor,
         child: Padding(
@@ -108,7 +101,6 @@ class _LoginViewState extends State<LoginView> {
               ),
 
               const SizedBox(height: 26), // Spacing between title and fields
-
               // Username TextField
               TextFormField(
                 controller: emailController,
@@ -119,15 +111,17 @@ class _LoginViewState extends State<LoginView> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor, // Accent color for border
+                      color:
+                          Theme.of(
+                            context,
+                          ).primaryColor, // Accent color for border
                     ),
                   ),
-                  prefixIcon: Icon(Icons.email)
+                  prefixIcon: Icon(Icons.email),
                 ),
               ),
 
               const SizedBox(height: 20), // Space between fields
-
               // Password TextField
               TextFormField(
                 controller: passwordController,
@@ -143,32 +137,47 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   ),
                   prefixIcon: Icon(Icons.lock),
-                  suffixIcon: IconButton(onPressed: () { setState(() {passwordHidden = !passwordHidden; }); }, 
-                  icon: passwordHidden ?  Icon(Icons.remove_red_eye) : Icon(Icons.remove_red_eye_outlined))
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        passwordHidden = !passwordHidden;
+                      });
+                    },
+                    icon:
+                        passwordHidden
+                            ? Icon(Icons.remove_red_eye)
+                            : Icon(Icons.remove_red_eye_outlined),
+                  ),
                 ),
               ),
 
               const SizedBox(height: 24), // Space before button
-
               // [BM] Login Button
               SizedBox(
                 width: double.infinity, // Make button stretch
                 child: ElevatedButton(
-                  onPressed: () { _onLoginPress();
+                  onPressed: () {
+                    _onLoginPress();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        backgroundColor: _loginSuccess ? Colors.blue : Colors.red,
-                        content: Center(child: Text(
-                            _loginSuccess ? 'Login com sucesso!' : 'Login Invalido.',
+                        backgroundColor:
+                            _loginSuccess ? Colors.blue : Colors.red,
+                        content: Center(
+                          child: Text(
+                            _loginSuccess
+                                ? 'Login com sucesso!'
+                                : 'Login Invalido.',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium,
-                          )
-                        )
-                      )
+                          ),
+                        ),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                    ), // Taller button
                   ),
                   child: Text('Entrar'),
                 ),
@@ -190,15 +199,13 @@ class _LoginViewState extends State<LoginView> {
                       width: 2,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 20)
-                  ), 
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                  ),
                   child: Text(
                     'Cadastre-se',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                    ),
+                    style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 ),
               ),
@@ -206,7 +213,6 @@ class _LoginViewState extends State<LoginView> {
               SizedBox(height: 24),
 
               //Forgot Password TextButton
-
               Center(
                 child: TextButton(
                   onPressed: () {
@@ -215,8 +221,12 @@ class _LoginViewState extends State<LoginView> {
                   style: TextButton.styleFrom(
                     foregroundColor: Theme.of(context).primaryColor,
                   ),
-                  child: Text('Esqueceu a Senha?', style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
-                )
+                  child: Text(
+                    'Esqueceu a Senha?',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ],
           ),
