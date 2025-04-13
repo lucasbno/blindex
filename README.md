@@ -19,7 +19,7 @@
 - **Provider**
 - **GetIt**
 - **Material Design**
-- **BCRYPT**
+- **BCrypt**
 
 ---
 
