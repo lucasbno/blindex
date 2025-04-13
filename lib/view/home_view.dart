@@ -127,21 +127,8 @@ class _PasswordListViewState extends State<PasswordListView> {
     return InkWell(
       onTap: () {
         Navigator.of(context).push(
-          PageRouteBuilder(
-            pageBuilder:
-                (context, animation, secondaryAnimation) =>
-                    const PasswordCreateView(),
-            transitionDuration: const Duration(milliseconds: 300),
-            transitionsBuilder: (
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-            ) {
-              return child;
-            },
-            opaque: false,
-            barrierColor: Colors.black54,
+          MaterialPageRoute(
+            builder: (context) => const PasswordCreateView(),
           ),
         );
       },
@@ -204,6 +191,7 @@ class _PasswordListViewState extends State<PasswordListView> {
       return _buildEmptyState(context);
     }
 
+    //NOTE LISTA
     final List<Password> favoritePasswords =
         passwords.where((p) => p.isFavorite).toList();
     final List<Password> otherPasswords =

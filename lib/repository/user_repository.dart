@@ -6,7 +6,7 @@ class UserRepository extends ChangeNotifier {
   List<User?> users = [
     User(name: 'Alice', phoneNumber: '(16) 0555-2368', email: 'alice@example.com', password: 'password123'),
     User(name: 'Bob', phoneNumber: '(80) 0451-1138', email: 'bob@example.com', password: 'hunter2'),
-    User(name: 'teste', phoneNumber: '(80) 0451-1138', email: 'teste', password: 'teste')
+    User(name: 'teste', phoneNumber: '(80) 0451-1138', email: 'teste', password: 'teste'),
   ];
 
   void updateUser(User updatedUser) {

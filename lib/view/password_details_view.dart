@@ -59,6 +59,7 @@ class PasswordCreateViewState extends State<PasswordCreateView> {
             )
             : formController.validateAndGetPassword();
 
+    //NOTE CREATE / UPDATE
     if (passwordData != null) {
       if (widget.isEditing && widget.initialData != null) {
         _updateExistingPassword(passwordData);

@@ -20,7 +20,6 @@ class AboutView extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 40),
-            // Logo e Informações do App
             Center(
               child: Column(
                 children: [
@@ -33,7 +32,7 @@ class AboutView extends StatelessWidget {
                         BoxShadow(
                           color: Theme.of(
                             context,
-                          ).primaryColor.withAlpha(51), // ~0.2 opacity (51/255)
+                          ).primaryColor.withAlpha(51),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -59,7 +58,6 @@ class AboutView extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Descrição
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
@@ -74,7 +72,6 @@ class AboutView extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Funcionalidades
             _buildCompactSection(
               title: 'Funcionalidades',
               context: context,
@@ -106,7 +103,6 @@ class AboutView extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Equipe
             _buildCompactSection(
               title: 'Desenvolvido por',
               context: context,
@@ -159,7 +155,7 @@ class AboutView extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(13), // ~0.05 opacity (13/255)
+                  color: Colors.black.withAlpha(13),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -186,7 +182,7 @@ class AboutView extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).primaryColor.withAlpha(26), // ~0.1 opacity (26/255)
+              ).primaryColor.withAlpha(26),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 18, color: Theme.of(context).primaryColor),
@@ -220,7 +216,7 @@ class AboutView extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).primaryColor.withAlpha(26), // ~0.1 opacity (26/255)
+              ).primaryColor.withAlpha(26),
               shape: BoxShape.circle,
             ),
             child: Center(

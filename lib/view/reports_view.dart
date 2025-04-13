@@ -30,6 +30,7 @@ class _ReportsViewState extends State<ReportsView> {
       child: Consumer<PasswordController>(
         builder: (context, controller, _) {
           final allPasswords = controller.passwords;
+          //NOTE LISTAS
           final weakPasswords = _reportsController.getWeakPasswords(allPasswords);
           final reusedPasswords = _reportsController.getReusedPasswords(allPasswords);
           final securityScore = _reportsController.calculateSecurityScore(
@@ -215,6 +216,8 @@ class _ReportsViewState extends State<ReportsView> {
     if (weakPasswords.isEmpty && reusedPasswords.isEmpty) {
       return _buildEmptyState(context);
     }
+
+    //NOTE LISTA RELATORIOS
 
     return ListView(
       children: [
