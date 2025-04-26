@@ -67,7 +67,7 @@ class MainApp extends StatelessWidget {
         '/forgot': (context) => const ForgotPwdView(),
         '/profile': (context) => const ProfileView(),
         '/passwords': (context) => const PasswordListView(),
-        '/reports': (context) => const ReportsView(), // Add this route
+        '/reports': (context) => const ReportsView(),
         '/edit-profile': (context) => const EditProfileView(),
         '/password/edit': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
