@@ -13,10 +13,13 @@ class ReportsView extends StatefulWidget {
   State<ReportsView> createState() => _ReportsViewState();
 }
 
-class _ReportsViewState extends State<ReportsView> {
+class _ReportsViewState extends State<ReportsView> with AutomaticKeepAliveClientMixin {
   late PasswordController _passwordController;
   final ReportsController _reportsController = ReportsController();
   bool _isInitialized = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -26,6 +29,13 @@ class _ReportsViewState extends State<ReportsView> {
   }
 
   Future<void> _initializeController() async {
+    if (!_passwordController.isLoading && _passwordController.passwords.isNotEmpty) {
+      setState(() {
+        _isInitialized = true;
+      });
+      return;
+    }
+    
     await _passwordController.initialize();
     if (mounted) {
       setState(() {
@@ -36,8 +46,10 @@ class _ReportsViewState extends State<ReportsView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    
     if (!_isInitialized) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
@@ -48,19 +60,19 @@ class _ReportsViewState extends State<ReportsView> {
       value: _passwordController,
       child: Consumer<PasswordController>(
         builder: (context, controller, _) {
-          if (controller.isLoading) {
-            return Scaffold(
+          if (controller.isLoading && controller.passwords.isEmpty) {
+            return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
 
           final allPasswords = controller.passwords;
           final weakPasswords = _reportsController.getWeakPasswords(allPasswords);
-          final reusedPasswords = _reportsController.getReusedPasswords(allPasswords);
+          final reusedGroups = _reportsController.getReusedPasswords(allPasswords);
           final securityScore = _reportsController.calculateSecurityScore(
             allPasswords,
             weakPasswords,
-            reusedPasswords,
+            reusedGroups,
           );
 
           return Scaffold(
@@ -70,24 +82,29 @@ class _ReportsViewState extends State<ReportsView> {
               toolbarHeight: 0,
             ),
             body: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(context),
-                  _buildSecurityScore(
-                    context,
-                    securityScore,
-                    weakPasswords.length,
-                    reusedPasswords.length,
-                  ),
-                  Expanded(
-                    child: _buildReportsContent(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await _passwordController.initialize();
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(context),
+                    _buildSecurityScore(
                       context,
-                      weakPasswords,
-                      reusedPasswords,
+                      securityScore,
+                      weakPasswords.length,
+                      reusedGroups.length,
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: _buildReportsContent(
+                        context,
+                        weakPasswords,
+                        reusedGroups,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             bottomNavigationBar: const AppBottomBar(
@@ -102,11 +119,35 @@ class _ReportsViewState extends State<ReportsView> {
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Text(
-        'Relatório de Segurança',
-        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Relatório de Segurança',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
+          ),
+          Consumer<PasswordController>(
+            builder: (context, controller, _) {
+              if (controller.isLoading) {
+                return const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () async {
+                  await controller.initialize();
+                },
+                tooltip: 'Atualizar relatório',
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -115,9 +156,12 @@ class _ReportsViewState extends State<ReportsView> {
     BuildContext context,
     double score,
     int weakPasswordsCount,
-    int reusedPasswordsCount,
+    int reusedGroupsCount,
   ) {
     final scoreColor = _reportsController.getScoreColor(score);
+    final totalReusedAccounts = _reportsController.getTotalReusedAccounts(
+      _reportsController.getReusedPasswords(_passwordController.passwords)
+    );
 
     return Container(
       margin: const EdgeInsets.all(16.0),
@@ -174,11 +218,40 @@ class _ReportsViewState extends State<ReportsView> {
                 context,
                 Icons.copy_all,
                 Colors.red,
-                'Senhas Reutilizadas',
-                reusedPasswordsCount.toString(),
+                'Reutilizadas',
+                '$totalReusedAccounts contas',
               ),
             ],
           ),
+          if (_passwordController.passwords.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withAlpha(25),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.security,
+                    size: 16,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Total: ${_passwordController.passwords.length} senhas',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -235,9 +308,9 @@ class _ReportsViewState extends State<ReportsView> {
   Widget _buildReportsContent(
     BuildContext context,
     List<Password> weakPasswords,
-    List<Map<String, dynamic>> reusedPasswords,
+    List<Map<String, dynamic>> reusedGroups,
   ) {
-    if (weakPasswords.isEmpty && reusedPasswords.isEmpty) {
+    if (weakPasswords.isEmpty && reusedGroups.isEmpty) {
       return _buildEmptyState(context);
     }
 
@@ -249,9 +322,9 @@ class _ReportsViewState extends State<ReportsView> {
             (password) => _buildWeakPasswordCard(context, password),
           ),
         ],
-        if (reusedPasswords.isNotEmpty) ...[
+        if (reusedGroups.isNotEmpty) ...[
           _buildSectionHeader(context, 'Senhas Reutilizadas'),
-          ...reusedPasswords.map(
+          ...reusedGroups.map(
             (group) => _buildReusedPasswordGroup(context, group),
           ),
         ],
@@ -264,9 +337,9 @@ class _ReportsViewState extends State<ReportsView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
+          const Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'Parabéns!',
             style: TextStyle(fontSize: 18, color: Colors.green),
           ),
@@ -316,6 +389,8 @@ class _ReportsViewState extends State<ReportsView> {
             Text(password.login),
             const SizedBox(height: 4),
             _buildWeaknessReasons(context, password.password),
+            const SizedBox(height: 4),
+            _buildPasswordStrength(context, password.password),
           ],
         ),
         isThreeLine: true,
@@ -354,6 +429,27 @@ class _ReportsViewState extends State<ReportsView> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildPasswordStrength(BuildContext context, String password) {
+    final strengthText = _reportsController.getPasswordStrengthText(password);
+    final strengthColor = _reportsController.getPasswordStrengthColor(password);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: strengthColor.withAlpha(50),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        'Força: $strengthText',
+        style: TextStyle(
+          fontSize: 10,
+          color: strengthColor,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../model/password.dart';
+import '../components/advanced_search_modal.dart';
 
 class PasswordRepository extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -166,6 +167,11 @@ class PasswordRepository extends ChangeNotifier {
             ? a.site.compareTo(b.site) 
             : b.site.compareTo(a.site));
         break;
+      case SortCriteria.login:
+        sortedList.sort((a, b) => ascending 
+            ? a.login.compareTo(b.login) 
+            : b.login.compareTo(a.login));
+        break;
     }
     
     return sortedList;
@@ -192,11 +198,4 @@ class PasswordRepository extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
   }
-}
-
-enum SortCriteria {
-  title,
-  createdAt,
-  updatedAt,
-  site,
 }

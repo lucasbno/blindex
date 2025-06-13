@@ -6,7 +6,7 @@ import 'package:blindex/view/about_view.dart';
 import 'package:blindex/view/edit_profile_view.dart';
 import 'package:blindex/view/forgot_pwd_view.dart';
 import 'package:blindex/view/login_view.dart';
-import 'package:blindex/view/home_view.dart';
+import 'package:blindex/view/home_view.dart' as home;
 import 'package:blindex/view/password_details_view.dart';
 import 'package:blindex/view/reports_view.dart';
 import 'package:blindex/view/sign_up_view.dart';
@@ -75,7 +75,7 @@ class MainApp extends StatelessWidget {
         '/login': (context) => const LoginView(),
         '/forgot': (context) => const ForgotPwdView(),
         '/profile': (context) => const ProfileView(),
-        '/passwords': (context) => const PasswordListView(),
+        '/passwords': (context) => const home.PasswordListView(),
         '/reports': (context) => const ReportsView(),
         '/edit-profile': (context) => const EditProfileView(),
         '/password/edit': (context) {
@@ -103,7 +103,7 @@ class AuthWrapper extends StatelessWidget {
       builder: (context, child) {
         // Se há um usuário logado, vai para as senhas
         if (userRepository.currentUser != null) {
-          return const PasswordListView();
+          return const home.PasswordListView();
         }
         
         // Caso contrário, vai para o login

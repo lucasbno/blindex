@@ -1,4 +1,5 @@
 import 'package:blindex/components/app_bottom_bar.dart';
+import 'package:blindex/components/advanced_search_modal.dart';
 import 'package:blindex/model/password.dart';
 import 'package:blindex/view/delete_password_view.dart';
 import 'package:flutter/material.dart';
@@ -144,59 +145,248 @@ class _PasswordListViewState extends State<PasswordListView> {
         top: 20.0,
         bottom: 12.0,
       ),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(13),
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: const Offset(0, 1),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(13),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: TextField(
-                onChanged: (value) {
-                  controller.searchQuery = value;
-                },
-                style: const TextStyle(fontSize: 15),
-                decoration: InputDecoration(
-                  hintText: 'Pesquisar senhas...',
-                  hintStyle: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 15,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  border: InputBorder.none,
-                  suffixIcon: Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withAlpha(26),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.search,
-                      color: Theme.of(context).primaryColor,
-                      size: 20,
+                  child: TextField(
+                    onChanged: (value) {
+                      controller.searchQuery = value;
+                    },
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      hintText: 'Pesquisar senhas...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 15,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      border: InputBorder.none,
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (controller.searchQuery.isNotEmpty)
+                            IconButton(
+                              icon: Icon(Icons.clear, size: 20),
+                              onPressed: () => controller.searchQuery = '',
+                            ),
+                          Container(
+                            margin: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withAlpha(26),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.search,
+                              color: Theme.of(context).primaryColor,
+                              size: 20,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              const SizedBox(width: 8),
+              _buildFilterButton(context, controller),
+              const SizedBox(width: 8),
+              _buildAddButton(context),
+            ],
           ),
-          const SizedBox(width: 12),
-          _buildAddButton(context),
+          if (controller.hasActiveFilters) ...[
+            const SizedBox(height: 8),
+            _buildActiveFiltersChips(context, controller),
+          ],
         ],
       ),
     );
+  }
+
+  Widget _buildFilterButton(BuildContext context, PasswordController controller) {
+    return Container(
+      height: 48,
+      width: 80,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => AdvancedSearchModal(
+              initialFilters: controller.filters,
+              onFiltersChanged: (filters) {
+                controller.updateFilters(filters);
+              },
+            ),
+          );
+        },
+        icon: Icon(
+          Icons.tune,
+          size: 18,
+        ),
+        label: Text(
+          'Filtros',
+          style: TextStyle(fontSize: 12),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: controller.hasActiveFilters 
+              ? Theme.of(context).primaryColor
+              : Colors.grey[100],
+          foregroundColor: controller.hasActiveFilters 
+              ? Colors.white 
+              : Theme.of(context).primaryColor,
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: controller.hasActiveFilters ? 2 : 0,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActiveFiltersChips(BuildContext context, PasswordController controller) {
+    List<Widget> chips = [];
+    
+    if (controller.filters.favoritesOnly) {
+      chips.add(_buildFilterChip(context, 'Favoritos', () {
+        controller.updateFilters(
+          controller.filters.copyWith(favoritesOnly: false),
+        );
+      }));
+    }
+    
+    if (controller.filters.siteFilter.isNotEmpty) {
+      chips.add(_buildFilterChip(context, 'Site: ${controller.filters.siteFilter}', () {
+        controller.updateFilters(
+          controller.filters.copyWith(siteFilter: ''),
+        );
+      }));
+    }
+    
+    if (controller.filters.sortBy != SortCriteria.title || 
+        controller.filters.sortOrder != SortOrder.ascending) {
+      String sortText = _getSortText(controller.filters.sortBy, controller.filters.sortOrder);
+      chips.add(_buildFilterChip(context, sortText, () {
+        controller.updateFilters(
+          controller.filters.copyWith(
+            sortBy: SortCriteria.title,
+            sortOrder: SortOrder.ascending,
+          ),
+        );
+      }));
+    }
+    
+    if (chips.isNotEmpty) {
+      chips.add(
+        InkWell(
+          onTap: () => controller.clearFilters(),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.clear_all, size: 16, color: Colors.red.shade600),
+                const SizedBox(width: 4),
+                Text(
+                  'Limpar',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.red.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    
+    return Wrap(
+      spacing: 8,
+      children: chips,
+    );
+  }
+
+  Widget _buildFilterChip(BuildContext context, String label, VoidCallback onRemove) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 4),
+          InkWell(
+            onTap: onRemove,
+            child: Icon(
+              Icons.close,
+              size: 16,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getSortText(SortCriteria criteria, SortOrder order) {
+    String criteriaText = '';
+    switch (criteria) {
+      case SortCriteria.title:
+        criteriaText = 'Título';
+        break;
+      case SortCriteria.createdAt:
+        criteriaText = 'Data Criação';
+        break;
+      case SortCriteria.updatedAt:
+        criteriaText = 'Última Modificação';
+        break;
+      case SortCriteria.site:
+        criteriaText = 'Site';
+        break;
+      case SortCriteria.login:
+        criteriaText = 'Login';
+        break;
+    }
+    
+    String orderText = order == SortOrder.ascending ? '↑' : '↓';
+    return '$criteriaText $orderText';
   }
 
   Widget _buildAddButton(BuildContext context) {

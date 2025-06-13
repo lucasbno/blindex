@@ -2,34 +2,100 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../model/password.dart';
 import '../repository/password_repository.dart';
+import '../components/advanced_search_modal.dart';
 
 class PasswordController extends ChangeNotifier {
   final PasswordRepository _repository = PasswordRepository();
-  String _searchQuery = '';
+  SearchFilters _filters = SearchFilters();
   
-  // Getters delegados ao repository
   List<Password> get passwords => _repository.passwords;
   bool get isLoading => _repository.isLoading;
   String? get errorMessage => _repository.errorMessage;
+  SearchFilters get filters => _filters;
 
   List<Password> get filteredPasswords {
-    final List<Password> filtered = _repository.filterPasswords(_searchQuery);
+    List<Password> filtered = List.from(_repository.passwords);
     
-    // Ordenar com favoritos primeiro
+    if (_filters.query.isNotEmpty) {
+      final query = _filters.query.toLowerCase();
+      filtered = filtered.where((password) {
+        return password.title.toLowerCase().contains(query) ||
+               password.login.toLowerCase().contains(query) ||
+               password.site.toLowerCase().contains(query) ||
+               password.notes.toLowerCase().contains(query);
+      }).toList();
+    }
+    
+    if (_filters.siteFilter.isNotEmpty) {
+      final siteQuery = _filters.siteFilter.toLowerCase();
+      filtered = filtered.where((password) {
+        return password.site.toLowerCase().contains(siteQuery);
+      }).toList();
+    }
+    
+    if (_filters.favoritesOnly) {
+      filtered = filtered.where((password) => password.isFavorite).toList();
+    }
+    
     filtered.sort((a, b) {
-      if (a.isFavorite && !b.isFavorite) return -1;
-      if (!a.isFavorite && b.isFavorite) return 1;
-      return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+      int comparison = 0;
+      
+      switch (_filters.sortBy) {
+        case SortCriteria.title:
+          comparison = a.title.toLowerCase().compareTo(b.title.toLowerCase());
+          break;
+        case SortCriteria.createdAt:
+          comparison = a.createdAt.compareTo(b.createdAt);
+          break;
+        case SortCriteria.updatedAt:
+          comparison = a.updatedAt.compareTo(b.updatedAt);
+          break;
+        case SortCriteria.site:
+          comparison = a.site.toLowerCase().compareTo(b.site.toLowerCase());
+          break;
+        case SortCriteria.login:
+          comparison = a.login.toLowerCase().compareTo(b.login.toLowerCase());
+          break;
+      }
+      
+      if (_filters.sortOrder == SortOrder.descending) {
+        comparison = -comparison;
+      }
+      
+      if (!_filters.favoritesOnly) {
+        if (a.isFavorite && !b.isFavorite) return -1;
+        if (!a.isFavorite && b.isFavorite) return 1;
+      }
+      
+      return comparison;
     });
 
     return filtered;
   }
 
-  String get searchQuery => _searchQuery;
+  String get searchQuery => _filters.query;
 
   set searchQuery(String query) {
-    _searchQuery = query;
+    _filters = _filters.copyWith(query: query);
     notifyListeners();
+  }
+
+  void updateFilters(SearchFilters newFilters) {
+    _filters = newFilters;
+    notifyListeners();
+  }
+
+  void clearFilters() {
+    _filters = SearchFilters();
+    notifyListeners();
+  }
+
+  bool get hasActiveFilters {
+    return _filters.query.isNotEmpty ||
+           _filters.siteFilter.isNotEmpty ||
+           _filters.favoritesOnly ||
+           _filters.sortBy != SortCriteria.title ||
+           _filters.sortOrder != SortOrder.ascending;
   }
 
   Future<void> initialize() async {
