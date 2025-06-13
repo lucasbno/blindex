@@ -1,5 +1,8 @@
 import 'package:blindex/theme/app_themes.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import '../repository/user_repository.dart';
+import '../model/user_model.dart';
 
 class EditProfileView extends StatefulWidget {
   const EditProfileView({super.key});
@@ -10,31 +13,118 @@ class EditProfileView extends StatefulWidget {
 
 class _EditProfileViewState extends State<EditProfileView> {
   late final TextEditingController _nameController;
-  late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
-  late final TextEditingController _passwordController;
-  bool _isPasswordVisible = false;
+  late final UserRepository _userRepository;
+  bool _isLoading = false;
+  bool _isInitialized = false;
+  User? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: 'Alice');
-    _emailController = TextEditingController(text: 'alice@example.com');
-    _phoneController = TextEditingController(text: '(16) 0555-2368');
-    _passwordController = TextEditingController(text: 'senha123');
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _userRepository = GetIt.instance.get<UserRepository>();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    try {
+      _currentUser = _userRepository.currentUser;
+      if (_currentUser != null) {
+        _nameController.text = _currentUser!.name;
+        _phoneController.text = _currentUser!.phoneNumber;
+      }
+    } catch (e) {
+      _showErrorSnackBar('Erro ao carregar dados do usuário');
+    } finally {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  Future<void> _saveProfile() async {
+    if (_nameController.text.trim().isEmpty) {
+      _showErrorSnackBar('Nome não pode estar vazio');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _userRepository.updateProfile(
+        name: _nameController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+      );
+      
+      _showSuccessSnackBar('Perfil atualizado com sucesso!');
+      Navigator.pop(context);
+    } catch (e) {
+      _showErrorSnackBar('Erro ao atualizar perfil: ${e.toString()}');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _sendPasswordReset() async {
+    if (_currentUser?.email == null) {
+      _showErrorSnackBar('E-mail não encontrado');
+      return;
+    }
+
+    try {
+      await _userRepository.sendPasswordResetEmail(_currentUser!.email);
+      _showSuccessSnackBar('E-mail de redefinição de senha enviado!');
+    } catch (e) {
+      _showErrorSnackBar('Erro ao enviar e-mail: ${e.toString()}');
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Editar Perfil'),
+          centerTitle: true,
+          elevation: 0,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Editar Perfil'),
@@ -43,34 +133,29 @@ class _EditProfileViewState extends State<EditProfileView> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildAvatarSection(context),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
+              _buildCurrentEmailSection(context),
+              const SizedBox(height: 24),
               _buildTextField(
                 controller: _nameController,
-                label: 'Nome',
-                icon: Icons.person_outline,
+                label: 'Nome completo',
+                icon: Icons.person_outline_rounded,
               ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _emailController,
-                label: 'E-mail',
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               _buildTextField(
                 controller: _phoneController,
-                label: 'Celular',
+                label: 'Telefone',
                 icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
               ),
-              const SizedBox(height: 16),
-              _buildPasswordField(context),
               const SizedBox(height: 32),
+              _buildPasswordResetSection(context),
+              const SizedBox(height: 40),
               _buildSaveButton(context),
             ],
           ),
@@ -80,6 +165,10 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Widget _buildAvatarSection(BuildContext context) {
+    final initials = _currentUser?.name.isNotEmpty == true 
+        ? _currentUser!.name.substring(0, 1).toUpperCase()
+        : 'U';
+
     return Center(
       child: Stack(
         children: [
@@ -87,7 +176,7 @@ class _EditProfileViewState extends State<EditProfileView> {
             radius: 60,
             backgroundColor: AppColors.accent(context).withValues(alpha: 0.2),
             child: Text(
-              'A',
+              initials,
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
@@ -113,6 +202,98 @@ class _EditProfileViewState extends State<EditProfileView> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCurrentEmailSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'E-mail atual',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textColor(context),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.textColor(context).withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: AppColors.textColor(context).withValues(alpha: 0.2),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.email_outlined,
+                color: AppColors.textColor(context).withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _currentUser?.email ?? 'E-mail não encontrado',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.textColor(context).withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'O e-mail não pode ser alterado após o cadastro.',
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.textColor(context).withValues(alpha: 0.6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordResetSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Redefinir senha',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textColor(context),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Para alterar sua senha, enviaremos um link de redefinição para seu e-mail.',
+          style: TextStyle(
+            fontSize: 14,
+            color: AppColors.textColor(context).withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _sendPasswordReset,
+            icon: const Icon(Icons.email_outlined),
+            label: const Text('Enviar link para redefinir senha'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              side: BorderSide(color: AppColors.accent(context)),
+              foregroundColor: AppColors.accent(context),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -147,58 +328,22 @@ class _EditProfileViewState extends State<EditProfileView> {
     );
   }
 
-  Widget _buildPasswordField(BuildContext context) {
-    return TextFormField(
-      controller: _passwordController,
-      obscureText: !_isPasswordVisible,
-      decoration: InputDecoration(
-        labelText: 'Senha',
-        prefixIcon: const Icon(Icons.lock_outline),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-          ),
-          onPressed: () {
-            setState(() {
-              _isPasswordVisible = !_isPasswordVisible;
-            });
-          },
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: AppColors.textColor(context).withValues(alpha: 0.3),
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: AppColors.accent(context),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildSaveButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.pop(context);
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Perfil atualizado com sucesso! (Demonstração)'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        },
-        child: const Text('Salvar Alterações'),
+        onPressed: _isLoading ? null : _saveProfile,
+        child: _isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : const Text('Salvar Alterações'),
       ),
     );
   }

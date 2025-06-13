@@ -152,4 +152,47 @@ class UserRepository extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> updateProfile({
+    required String name,
+    required String phoneNumber,
+  }) async {
+    try {
+      if (_currentUser?.uid != null) {
+        final updatedUser = User(
+          uid: _currentUser!.uid,
+          name: name,
+          email: _currentUser!.email,
+          phoneNumber: phoneNumber,
+          createdAt: _currentUser!.createdAt,
+        );
+
+        await _firestore
+            .collection('usuarios')
+            .doc(_currentUser!.uid)
+            .update({
+          'name': name,
+          'phoneNumber': phoneNumber,
+        });
+        
+        _currentUser = updatedUser;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Erro ao atualizar perfil: $e');
+      return false;
+    }
+  }
+
+  Future<bool> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return true;
+    } catch (e) {
+      print('Erro ao enviar e-mail de reset: $e');
+      return false;
+    }
+  }
 }
