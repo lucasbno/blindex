@@ -1,5 +1,6 @@
 import 'package:blindex/controller/pwd_recover_controller.dart';
 import 'package:blindex/repository/user_repository.dart';
+import 'package:blindex/repository/password_repository.dart';
 import 'package:blindex/theme/app_themes.dart';
 import 'package:blindex/view/about_view.dart';
 import 'package:blindex/view/edit_profile_view.dart';
@@ -32,6 +33,7 @@ void main() async {
 
   g.registerSingleton<AppThemes>(AppThemes());
   g.registerSingleton<UserRepository>(UserRepository());
+  g.registerSingleton<PasswordRepository>(PasswordRepository());
   g.registerSingleton<PwdRecoverController>(PwdRecoverController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<SignUpController>(SignUpController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<LoginScreenController>(LoginScreenController(GetIt.I.get<UserRepository>()));

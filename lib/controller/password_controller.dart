@@ -1,136 +1,103 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../model/password.dart';
+import '../repository/password_repository.dart';
 
 class PasswordController extends ChangeNotifier {
-  final List<Password> _passwords = [
-    Password(
-      id: '1685432161000',
-      title: 'Gmail',
-      login: 'exemplo@gmail.com',
-      password: 'senhaGmail123',
-      site: 'https://gmail.com',
-      notes: 'Conta de email pessoal',
-      isFavorite: true,
-    ),
-    Password(
-      id: '1685432162000',
-      title: 'Banco Itaú',
-      login: 'usuario_itau',
-      password: 'SenhaDoBanco!2023',
-      site: 'https://www.itau.com.br',
-      notes: 'Conta corrente principal, agência 1234',
-      isFavorite: true,
-    ),
-    Password(
-      id: '1685432163000',
-      title: 'Facebook',
-      login: 'meu.email@facebook.com',
-      password: 'Facebook2023',
-      site: 'https://facebook.com',
-      notes: 'Perfil pessoal',
-      isFavorite: false,
-    ),
-    Password(
-      id: '1685432164000',
-      title: 'Netflix',
-      login: 'usuario_netflix',
-      password: 'SenhaNetflix2023!',
-      site: 'https://netflix.com',
-      notes: 'Plano premium, renovação em 15/06',
-      isFavorite: true,
-    ),
-    Password(
-      id: '1685432165000',
-      title: 'Nubank',
-      login: 'cpf_nubank',
-      password: 'NubankRoxo2023!',
-      site: 'https://nubank.com.br',
-      notes: 'Cartão de crédito principal',
-      isFavorite: true,
-    ),
-    Password(
-      id: '1685432166000',
-      title: 'Spotify',
-      login: 'musica@email.com',
-      password: 'SpotifyMusica!2023',
-      site: 'https://spotify.com',
-      notes: 'Plano família, renovação automática',
-      isFavorite: false,
-    ),
-    Password(
-      id: '1685432166000',
-      title: 'Instagram',
-      login: 'usuario_instagram',
-      password: 'Facebook2023',
-      site: 'https://instagram.com',
-      notes: 'Perfil pessoal, fotos de viagens',
-      isFavorite: false,
-    ),
-  ];
-
+  final PasswordRepository _repository = PasswordRepository();
   String _searchQuery = '';
+  
+  // Getters delegados ao repository
+  List<Password> get passwords => _repository.passwords;
+  bool get isLoading => _repository.isLoading;
+  String? get errorMessage => _repository.errorMessage;
 
   List<Password> get filteredPasswords {
-    final List<Password> filtered = _passwords
-        .where(
-          (password) =>
-              password.title.toLowerCase().contains(
-                    _searchQuery.toLowerCase(),
-                  ) ||
-              password.login.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ),
-        )
-        .toList();
-
+    final List<Password> filtered = _repository.filterPasswords(_searchQuery);
+    
+    // Ordenar com favoritos primeiro
     filtered.sort((a, b) {
       if (a.isFavorite && !b.isFavorite) return -1;
       if (!a.isFavorite && b.isFavorite) return 1;
-      return 0;
+      return a.title.toLowerCase().compareTo(b.title.toLowerCase());
     });
 
     return filtered;
   }
 
-  List<Password> get passwords => List.unmodifiable(_passwords);
+  String get searchQuery => _searchQuery;
 
   set searchQuery(String query) {
     _searchQuery = query;
     notifyListeners();
   }
 
-  String get searchQuery => _searchQuery;
+  Future<void> initialize() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await loadPasswords(user.uid);
+    }
+  }
 
-  void toggleFavorite(Password password) {
-    password.isFavorite = !password.isFavorite;
+  // Carregar senhas do Firestore
+  Future<void> loadPasswords(String userId) async {
+    _repository.addListener(_onRepositoryChanged);
+    await _repository.loadPasswords(userId);
+  }
+
+  // Callback para mudanças no repository
+  void _onRepositoryChanged() {
     notifyListeners();
   }
 
+  // Stream para mudanças em tempo real
+  Stream<List<Password>> watchPasswords(String userId) {
+    return _repository.watchPasswords(userId);
+  }
+
+  // Adicionar nova senha
+  Future<bool> addPassword(Password password) async {
+    return await _repository.addPassword(password);
+  }
+
+  // Atualizar senha existente
+  Future<bool> updatePassword(Password password) async {
+    return await _repository.updatePassword(password);
+  }
+
+  // Deletar senha
+  Future<bool> deletePassword(String passwordId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+    
+    return await _repository.deletePassword(passwordId, user.uid);
+  }
+
+  // Alternar favorito
+  Future<bool> toggleFavorite(Password password) async {
+    return await _repository.toggleFavorite(password);
+  }
+
+  // Buscar senha por ID
   Password? findPasswordById(String id) {
     try {
-      return _passwords.firstWhere(
-        (password) => password.id == id,
-      );
+      return passwords.firstWhere((password) => password.id == id);
     } catch (e) {
       return null;
     }
   }
 
-  void addPassword(Password password) {
-    _passwords.add(password);
-    notifyListeners();
+  // Obter apenas favoritos
+  List<Password> get favoritePasswords => _repository.getFavoritePasswords();
+
+  // Limpar erro
+  void clearError() {
+    _repository.clearError();
   }
 
-  void updatePassword(String id, Password updatedPassword) {
-    final index = _passwords.indexWhere((password) => password.id == id);
-    if (index != -1) {
-      _passwords[index] = updatedPassword;
-      notifyListeners();
-    }
-  }
-
-  void deletePassword(String id) {
-    _passwords.removeWhere((password) => password.id == id);
-    notifyListeners();
+  @override
+  void dispose() {
+    _repository.removeListener(_onRepositoryChanged);
+    super.dispose();
   }
 }

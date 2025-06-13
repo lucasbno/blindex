@@ -4,6 +4,7 @@ import 'package:blindex/view/delete_password_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../controller/password_controller.dart';
 import 'password_details_view.dart';
 
@@ -16,19 +17,94 @@ class PasswordListView extends StatefulWidget {
 
 class _PasswordListViewState extends State<PasswordListView> {
   late PasswordController _controller;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _controller = GetIt.instance.get<PasswordController>();
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
+    await _controller.initialize();
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Verificar se usuário está logado
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text('Faça login para acessar suas senhas'),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                child: Text('Fazer Login'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (!_isInitialized) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return ChangeNotifierProvider.value(
       value: _controller,
       child: Consumer<PasswordController>(
         builder: (context, controller, _) {
+          if (controller.isLoading) {
+            return Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (controller.errorMessage != null) {
+            return Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    SizedBox(height: 16),
+                    Text(
+                      'Erro ao carregar senhas',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Text(controller.errorMessage!),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        controller.clearError();
+                        _initializeController();
+                      },
+                      child: Text('Tentar Novamente'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           final filteredPasswords = controller.filteredPasswords;
 
           return Scaffold(
@@ -191,7 +267,6 @@ class _PasswordListViewState extends State<PasswordListView> {
       return _buildEmptyState(context);
     }
 
-    //NOTE LISTA
     final List<Password> favoritePasswords =
         passwords.where((p) => p.isFavorite).toList();
     final List<Password> otherPasswords =
@@ -238,7 +313,7 @@ class _PasswordListViewState extends State<PasswordListView> {
                 password.isFavorite ? Icons.star : Icons.star_border,
                 color: password.isFavorite ? Colors.amber : Colors.grey,
               ),
-              onPressed: () => controller.toggleFavorite(password),
+              onPressed: () async => await controller.toggleFavorite(password),
             ),
             IconButton(
               icon: const Icon(
@@ -268,8 +343,10 @@ class _PasswordListViewState extends State<PasswordListView> {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            DeletePasswordDialog(password: password, onDelete: () {
-              controller.deletePassword(password.id);
+            DeletePasswordDialog(password: password, onDelete: () async {
+              if (password.id != null) {
+                await controller.deletePassword(password.id!);
+              }
               Navigator.of(context).pop();
             }),
         transitionDuration: const Duration(milliseconds: 300),

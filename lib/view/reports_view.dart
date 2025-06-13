@@ -16,21 +16,45 @@ class ReportsView extends StatefulWidget {
 class _ReportsViewState extends State<ReportsView> {
   late PasswordController _passwordController;
   final ReportsController _reportsController = ReportsController();
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _passwordController = GetIt.instance.get<PasswordController>();
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
+    await _passwordController.initialize();
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return ChangeNotifierProvider.value(
       value: _passwordController,
       child: Consumer<PasswordController>(
         builder: (context, controller, _) {
+          if (controller.isLoading) {
+            return Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
           final allPasswords = controller.passwords;
-          //NOTE LISTAS
           final weakPasswords = _reportsController.getWeakPasswords(allPasswords);
           final reusedPasswords = _reportsController.getReusedPasswords(allPasswords);
           final securityScore = _reportsController.calculateSecurityScore(
@@ -216,8 +240,6 @@ class _ReportsViewState extends State<ReportsView> {
     if (weakPasswords.isEmpty && reusedPasswords.isEmpty) {
       return _buildEmptyState(context);
     }
-
-    //NOTE LISTA RELATORIOS
 
     return ListView(
       children: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math';
 import '../model/password.dart';
 
@@ -51,10 +52,14 @@ class PasswordFormController extends ChangeNotifier {
   }
 
   Password? validateAndGetPassword({String? existingId}) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+    
     if (formKey.currentState?.validate() ?? false) {
       if (existingId != null) {
         return Password(
           id: existingId,
+          userId: user.uid,
           title: titleController.text,
           login: loginController.text,
           password: passwordController.text,
@@ -64,6 +69,7 @@ class PasswordFormController extends ChangeNotifier {
         );
       } else {
         return Password.create(
+          userId: user.uid,
           title: titleController.text,
           login: loginController.text,
           password: passwordController.text,

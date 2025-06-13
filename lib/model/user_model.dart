@@ -15,7 +15,6 @@ class User {
     this.createdAt,
   });
 
-  // Factory constructor para criar User a partir de dados do Firestore
   factory User.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return User(
@@ -27,7 +26,6 @@ class User {
     );
   }
 
-  // Converte User para Map para salvar no Firestore
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,

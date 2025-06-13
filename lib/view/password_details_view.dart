@@ -51,7 +51,7 @@ class PasswordCreateViewState extends State<PasswordCreateView> {
     Navigator.of(context).pop();
   }
 
-  void _savePassword(PasswordFormController formController) {
+  Future<void> _savePassword(PasswordFormController formController) async {
     final Password? passwordData =
         widget.isEditing && widget.initialData != null
             ? formController.validateAndGetPassword(
@@ -59,38 +59,63 @@ class PasswordCreateViewState extends State<PasswordCreateView> {
             )
             : formController.validateAndGetPassword();
 
-    //NOTE CREATE / UPDATE
     if (passwordData != null) {
+      bool success = false;
+      
       if (widget.isEditing && widget.initialData != null) {
-        _updateExistingPassword(passwordData);
+        success = await _updateExistingPassword(passwordData);
       } else {
-        _createNewPassword(passwordData);
+        success = await _createNewPassword(passwordData);
       }
 
-      _close();
+      if (success) {
+        _close();
+      }
     }
   }
 
-  void _updateExistingPassword(Password password) {
-    _passwordController.updatePassword(password.id, password);
+  Future<bool> _updateExistingPassword(Password password) async {
+    final success = await _passwordController.updatePassword(password);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Senha atualizada com sucesso!'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Senha atualizada com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_passwordController.errorMessage ?? 'Erro ao atualizar senha'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    
+    return success;
   }
 
-  void _createNewPassword(Password password) {
-    _passwordController.addPassword(password);
+  Future<bool> _createNewPassword(Password password) async {
+    final success = await _passwordController.addPassword(password);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Senha adicionada com sucesso!'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Senha adicionada com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_passwordController.errorMessage ?? 'Erro ao adicionar senha'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    
+    return success;
   }
 
   @override
@@ -325,7 +350,7 @@ class PasswordCreateViewState extends State<PasswordCreateView> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () => _savePassword(formController),
+        onPressed: () async => await _savePassword(formController),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Theme.of(context).primaryColor,
