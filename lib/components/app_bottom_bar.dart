@@ -25,7 +25,6 @@ class AppBottomBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          // Botão Início
           _buildNavButton(
             context: context,
             route: '/passwords',
@@ -48,6 +47,14 @@ class AppBottomBar extends StatelessWidget {
             isActive: currentScreen == '/profile',
             icon: Icons.person,
             label: 'Perfil',
+          ),
+
+          _buildNavButton(
+            context: context,
+            route: '/trash',
+            isActive: currentScreen == '/trash',
+            icon: Icons.delete_outline,
+            label: 'Lixeira',
           ),
         ],
       ),

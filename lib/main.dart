@@ -10,6 +10,7 @@ import 'package:blindex/view/home_view.dart' as home;
 import 'package:blindex/view/password_details_view.dart';
 import 'package:blindex/view/reports_view.dart';
 import 'package:blindex/view/sign_up_view.dart';
+import 'package:blindex/view/trash_view.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -77,6 +78,7 @@ class MainApp extends StatelessWidget {
         '/profile': (context) => const ProfileView(),
         '/passwords': (context) => const home.PasswordListView(),
         '/reports': (context) => const ReportsView(),
+        '/trash': (context) => const TrashView(),
         '/edit-profile': (context) => const EditProfileView(),
         '/password/edit': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;

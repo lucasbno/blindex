@@ -47,7 +47,7 @@ class PasswordRepository extends ChangeNotifier {
         
         passwords.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         
-        _passwords = passwords;
+        _passwords = passwords; // Filtra senhas não deletadas
         
         _isLoading = false;
         notifyListeners();
@@ -95,8 +95,36 @@ class PasswordRepository extends ChangeNotifier {
     }
   }
   
-  Future<bool> deletePassword(String passwordId, String userId) async {
+  // Move senha para lixeira (mover para coleção separada)
+  Future<bool> moveToTrash(String passwordId, String userId) async {
     try {
+      // Buscar a senha original
+      final passwordDoc = await _firestore
+          .collection('cofre')
+          .doc(passwordId)
+          .get();
+      
+      if (!passwordDoc.exists) {
+        _errorMessage = 'Senha não encontrada';
+        notifyListeners();
+        return false;
+      }
+      
+      final password = Password.fromFirestore(passwordDoc);
+      
+      // Criar dados para a lixeira
+      final trashData = password.copyWith(
+        isDeleted: true,
+        deletedAt: DateTime.now(),
+      ).toFirestore();
+      
+      // Adicionar à coleção lixeira
+      await _firestore
+          .collection('lixeira')
+          .doc(passwordId) // Usar o mesmo ID
+          .set(trashData);
+      
+      // Remover da coleção cofre
       await _firestore
           .collection('cofre')
           .doc(passwordId)
@@ -105,10 +133,117 @@ class PasswordRepository extends ChangeNotifier {
       await loadPasswords(userId);
       return true;
     } catch (e) {
-      _errorMessage = 'Erro ao deletar senha: $e';
+      _errorMessage = 'Erro ao mover senha para lixeira: $e';
       notifyListeners();
-      print('Erro ao deletar senha: $e');
+      print('Erro ao mover senha para lixeira: $e');
       return false;
+    }
+  }
+
+  // Deleta senha permanentemente da lixeira
+  Future<bool> deletePassword(String passwordId, String userId) async {
+    try {
+      await _firestore
+          .collection('lixeira')
+          .doc(passwordId)
+          .delete();
+      
+      return true;
+    } catch (e) {
+      _errorMessage = 'Erro ao deletar senha permanentemente: $e';
+      notifyListeners();
+      print('Erro ao deletar senha permanentemente: $e');
+      return false;
+    }
+  }
+
+  // Restaura senha da lixeira para o cofre
+  Future<bool> restoreFromTrash(String passwordId, String userId) async {
+    try {
+      // Buscar a senha na lixeira
+      final trashDoc = await _firestore
+          .collection('lixeira')
+          .doc(passwordId)
+          .get();
+      
+      if (!trashDoc.exists) {
+        _errorMessage = 'Senha não encontrada na lixeira';
+        notifyListeners();
+        return false;
+      }
+      
+      final password = Password.fromFirestore(trashDoc);
+      
+      // Criar dados para restaurar (remover campos da lixeira)
+      final restoredData = password.copyWith(
+        isDeleted: false,
+        deletedAt: null,
+      ).toFirestore();
+      
+      // Remover campos específicos da lixeira
+      restoredData.remove('isDeleted');
+      restoredData.remove('deletedAt');
+      restoredData['updatedAt'] = DateTime.now();
+      
+      // Adicionar de volta ao cofre
+      await _firestore
+          .collection('cofre')
+          .doc(passwordId)
+          .set(restoredData);
+      
+      // Remover da lixeira
+      await _firestore
+          .collection('lixeira')
+          .doc(passwordId)
+          .delete();
+      
+      await loadPasswords(userId);
+      return true;
+    } catch (e) {
+      _errorMessage = 'Erro ao restaurar senha: $e';
+      notifyListeners();
+      print('Erro ao restaurar senha: $e');
+      return false;
+    }
+  }
+
+  // Carrega senhas da lixeira
+  Future<List<Password>> loadDeletedPasswords(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('lixeira')
+          .where('userId', isEqualTo: userId)
+          .orderBy('deletedAt', descending: true)
+          .get();
+      
+      return querySnapshot.docs
+          .map((doc) => Password.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      print('Erro ao carregar lixeira: $e');
+      // Fallback se não há índice para deletedAt
+      try {
+        final querySnapshot = await _firestore
+            .collection('lixeira')
+            .where('userId', isEqualTo: userId)
+            .get();
+        
+        final passwords = querySnapshot.docs
+            .map((doc) => Password.fromFirestore(doc))
+            .toList();
+        
+        passwords.sort((a, b) {
+          if (a.deletedAt == null && b.deletedAt == null) return 0;
+          if (a.deletedAt == null) return 1;
+          if (b.deletedAt == null) return -1;
+          return b.deletedAt!.compareTo(a.deletedAt!);
+        });
+        
+        return passwords;
+      } catch (e2) {
+        print('Erro ao carregar lixeira (fallback): $e2');
+        return [];
+      }
     }
   }
   

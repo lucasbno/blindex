@@ -10,6 +10,8 @@ class Password {
   String notes;
   String icon;
   bool isFavorite;
+  bool isDeleted;
+  DateTime? deletedAt;
   final DateTime createdAt;
   DateTime updatedAt;
 
@@ -23,6 +25,8 @@ class Password {
     this.notes = '',
     this.icon = '',
     this.isFavorite = false,
+    this.isDeleted = false,
+    this.deletedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : createdAt = createdAt ?? DateTime.now(),
@@ -37,6 +41,7 @@ class Password {
     String notes = '',
     String icon = '',
     bool isFavorite = false,
+    bool isDeleted = false,
   }) {
     return Password(
       userId: userId,
@@ -47,6 +52,7 @@ class Password {
       notes: notes,
       icon: icon,
       isFavorite: isFavorite,
+      isDeleted: isDeleted,
     );
   }
 
@@ -62,6 +68,8 @@ class Password {
       notes: data['notes'] ?? '',
       icon: data['icon'] ?? '',
       isFavorite: data['isFavorite'] == true,
+      isDeleted: data['isDeleted'] == true,
+      deletedAt: data['deletedAt']?.toDate(),
       createdAt: data['createdAt']?.toDate() ?? DateTime.now(),
       updatedAt: data['updatedAt']?.toDate() ?? DateTime.now(),
     );
@@ -78,6 +86,8 @@ class Password {
       'notes': notes,
       'icon': icon,
       'isFavorite': isFavorite,
+      'isDeleted': isDeleted,
+      'deletedAt': deletedAt,
       'createdAt': createdAt,
       'updatedAt': DateTime.now(),
     };
@@ -91,6 +101,8 @@ class Password {
     String? notes,
     String? icon,
     bool? isFavorite,
+    bool? isDeleted,
+    DateTime? deletedAt,
   }) {
     return Password(
       id: id,
@@ -102,6 +114,8 @@ class Password {
       notes: notes ?? this.notes,
       icon: icon ?? this.icon,
       isFavorite: isFavorite ?? this.isFavorite,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deletedAt: deletedAt ?? this.deletedAt,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -119,6 +133,8 @@ class Password {
       'notes': notes,
       'icon': icon,
       'isFavorite': isFavorite,
+      'isDeleted': isDeleted,
+      'deletedAt': deletedAt?.millisecondsSinceEpoch,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
     };
@@ -135,6 +151,10 @@ class Password {
       notes: map['notes'] ?? '',
       icon: map['icon'] ?? '',
       isFavorite: map['isFavorite'] == true,
+      isDeleted: map['isDeleted'] == true,
+      deletedAt: map['deletedAt'] != null 
+          ? DateTime.fromMillisecondsSinceEpoch(map['deletedAt'])
+          : null,
       createdAt: map['createdAt'] != null 
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'])
           : DateTime.now(),

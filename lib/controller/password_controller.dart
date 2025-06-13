@@ -131,12 +131,28 @@ class PasswordController extends ChangeNotifier {
     return await _repository.updatePassword(password);
   }
 
-  // Deletar senha
+  // Mover senha para lixeira
+  Future<bool> moveToTrash(String passwordId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+    
+    return await _repository.moveToTrash(passwordId, user.uid);
+  }
+
+  // Deletar senha permanentemente
   Future<bool> deletePassword(String passwordId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
     
     return await _repository.deletePassword(passwordId, user.uid);
+  }
+
+  // Restaurar senha da lixeira
+  Future<bool> restoreFromTrash(String passwordId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+    
+    return await _repository.restoreFromTrash(passwordId, user.uid);
   }
 
   // Alternar favorito

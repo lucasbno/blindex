@@ -523,10 +523,8 @@ class _PasswordListViewState extends State<PasswordListView> {
         },
       ),
     );
-  }
-
-  void _showDeleteConfirmation(
-    BuildContext context, 
+  }  void _showDeleteConfirmation(
+    BuildContext context,
     PasswordController controller,
     Password password,
   ) {
@@ -534,10 +532,26 @@ class _PasswordListViewState extends State<PasswordListView> {
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             DeletePasswordDialog(password: password, onDelete: () async {
-              if (password.id != null) {
-                await controller.deletePassword(password.id!);
-              }
+              // Primeiro fecha o modal
               Navigator.of(context).pop();
+              
+              // Pequeno delay para suavizar a transição
+              await Future.delayed(const Duration(milliseconds: 300));
+              
+              if (password.id != null) {
+                try {
+                  // Executa a ação
+                  final success = await controller.moveToTrash(password.id!);
+                  
+                  if (success) {
+                    _showSuccessSnackBar('Senha movida para lixeira com sucesso!');
+                  } else {
+                    _showErrorSnackBar('Erro ao mover senha para lixeira');
+                  }
+                } catch (e) {
+                  _showErrorSnackBar('Erro ao mover senha para lixeira: $e');
+                }
+              }
             }),
         transitionDuration: const Duration(milliseconds: 300),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -565,6 +579,24 @@ class _PasswordListViewState extends State<PasswordListView> {
               style: const TextStyle(color: Colors.white),
             ),
           );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   @override

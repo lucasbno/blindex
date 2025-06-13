@@ -42,22 +42,30 @@ class DeletePasswordDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.red,
+            Icons.delete_outline,
+            color: Colors.orange,
             size: 64,
           ),
           const SizedBox(height: 16),
           Text(
-            'Excluir senha',
+            'Mover para lixeira',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'Tem certeza que deseja excluir a senha "${password.title}"?',
+            'Tem certeza que deseja mover a senha "${password.title}" para a lixeira?',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Você poderá restaurá-la posteriormente.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.grey.shade600,
+            ),
           ),
           const SizedBox(height: 24),
           Row(
@@ -92,7 +100,7 @@ class DeletePasswordDialog extends StatelessWidget {
   Widget _buildDeleteButton(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         shape: RoundedRectangleBorder(
@@ -100,7 +108,7 @@ class DeletePasswordDialog extends StatelessWidget {
         ),
       ),
       onPressed: onDelete,
-      child: const Text('Excluir'),
+      child: const Text('Mover para lixeira'),
     );
   }
 }
