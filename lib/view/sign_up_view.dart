@@ -42,7 +42,7 @@ class _SignUpViewState extends State<SignUpView> {
 
   bool _signUpSuccess = false;
 
-  void _onSignUpPress() {
+  void _onSignUpPress() async {
     if (_formKey.currentState?.validate() ?? false) {
       final name = nameController.text.trim();
       final email = emailController.text.trim();
@@ -50,19 +50,36 @@ class _SignUpViewState extends State<SignUpView> {
       final password = passwordController.text.trim();
       final confirm_pwd = pwdConfirmController.text.trim();
 
-      final success = signUpController.signUp(name, phoneNumber, email, password, confirm_pwd);
+      final success = await signUpController.signUp(name, phoneNumber, email, password, confirm_pwd);
 
       setState(() {
         _signUpSuccess = success;
       });
 
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: _signUpSuccess ? Colors.blue : Colors.red,
+            content: Center(
+              child: Text(
+                _signUpSuccess
+                    ? 'Cadastro realizado com sucesso!'
+                    : signUpController.errorMessage ?? 'Erro no cadastro',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ),
+        );
+      }
+
       if (_signUpSuccess) {
-        Future.delayed(Duration(milliseconds: 1000), () {
+        Future.delayed(const Duration(milliseconds: 1000), () {
           if (!mounted) return;
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoginView()),
+            MaterialPageRoute(builder: (context) => const LoginView()),
           );
         });
       }
@@ -294,31 +311,28 @@ class _SignUpViewState extends State<SignUpView> {
                 const SizedBox(height: 24), // Space before button
 
                 // Signup Button
-                SizedBox(
-                  width: double.infinity, // Make button stretch
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _onSignUpPress();
-                      if (_signUpSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: Colors.blue,
-                            content: Center(
-                              child: Text(
-                                'Cadastro com sucesso!',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
-                    ),
-                    child: Text('Cadastrar'),
-                  ),
+                ListenableBuilder(
+                  listenable: signUpController,
+                  builder: (context, child) {
+                    return SizedBox(
+                      width: double.infinity, // Make button stretch
+                      child: ElevatedButton(
+                        onPressed: signUpController.isLoading ? null : () {
+                          _onSignUpPress();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
+                        ),
+                        child: signUpController.isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text('Cadastrar'),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

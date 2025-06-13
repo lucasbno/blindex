@@ -30,15 +30,32 @@ class _LoginViewState extends State<LoginView> {
     super.dispose();
   }
 
-  void _onLoginPress() {
+  void _onLoginPress() async {
     final email = emailController.text;
     final password = passwordController.text;
 
-    final success = loginController.login(email, password);
+    final success = await loginController.login(email, password);
 
     setState(() {
       _loginSuccess = success;
     });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: _loginSuccess ? Colors.blue : Colors.red,
+          content: Center(
+            child: Text(
+              _loginSuccess
+                  ? 'Login com sucesso!'
+                  : loginController.errorMessage ?? 'Login Inválido.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ),
+      );
+    }
 
     if (_loginSuccess) {
       if (!mounted) return;
@@ -151,36 +168,31 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
 
-              const SizedBox(height: 24), // Space before button
-              // [BM] Login Button
-              SizedBox(
-                width: double.infinity, // Make button stretch
-                child: ElevatedButton(
-                  onPressed: () {
-                    _onLoginPress();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor:
-                            _loginSuccess ? Colors.blue : Colors.red,
-                        content: Center(
-                          child: Text(
-                            _loginSuccess
-                                ? 'Login com sucesso!'
-                                : 'Login Invalido.',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
+              const SizedBox(height: 24),
+              ListenableBuilder(
+                listenable: loginController,
+                builder: (context, child) {
+                  return SizedBox(
+                    width: double.infinity, // Make button stretch
+                    child: ElevatedButton(
+                      onPressed: loginController.isLoading ? null : () {
+                        _onLoginPress();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 20,
+                        ), // Taller button
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 20,
-                    ), // Taller button
-                  ),
-                  child: Text('Entrar'),
-                ),
+                      child: loginController.isLoading 
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Entrar'),
+                    ),
+                  );
+                },
               ),
 
               SizedBox(height: 12),

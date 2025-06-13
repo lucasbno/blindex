@@ -1,4 +1,3 @@
-import 'package:blindex/model/user_model.dart';
 import 'package:blindex/repository/user_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -7,40 +6,44 @@ class PwdRecoverController extends ChangeNotifier {
 
   PwdRecoverController(this.userRepository);
 
-  bool checkUser(String email) {
-    final users = userRepository.users;
+  bool _isLoading = false;
+  String? _errorMessage;
+  String? _successMessage;
 
-    final user = users.firstWhere(
-      (u) => u != null && u.email == email,
-      orElse: () => null,
-    );
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  String? get successMessage => _successMessage;
 
-    return user != null;
+  Future<bool> sendPasswordResetEmail(String email) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      final success = await userRepository.resetPassword(email);
+
+      _isLoading = false;
+
+      if (success) {
+        _successMessage = 'Email de recuperação enviado com sucesso!';
+      } else {
+        _errorMessage = 'Erro ao enviar email de recuperação';
+      }
+
+      notifyListeners();
+      return success;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Erro ao enviar email: ${e.toString()}';
+      notifyListeners();
+      return false;
+    }
   }
 
-  bool checkValidation(String validationCode) {
-    return validationCode == '12345';
-  }
-
-  bool resetPassword(String email, String newPassword, String passwordConfirm) {
-    final users = userRepository.users;
-
-    final user = users.firstWhere(
-      (u) => u != null && u.email == email,
-      orElse: () => null,
-    );
-
-    // Check if user exists and passwords match
-    if (user == null || newPassword != passwordConfirm) return false;
-
-    // Check if new password is the same as the old one
-    if (user.checkPassword(newPassword)) return false;
-
-    // Use the updated copyWith method with newPassword parameter
-    User updatedUser = user.copyWith(newPassword: newPassword);
-
-    userRepository.updateUser(updatedUser);
-
-    return true;
+  void clearMessages() {
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
   }
 }

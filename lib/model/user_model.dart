@@ -1,45 +1,55 @@
-import 'package:bcrypt/bcrypt.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
+  final String? uid; // Firebase UID
   final String name;
   final String phoneNumber;
   final String email;
-  final String passwordHash;
+  final DateTime? createdAt;
 
-  User({required this.name, required this.email, required this.phoneNumber, required String password})
-      : passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
-
-  User.withExistingHash({
+  User({
+    this.uid,
     required this.name, 
     required this.email, 
-    required this.phoneNumber, 
-    required this.passwordHash
+    required this.phoneNumber,
+    this.createdAt,
   });
 
+  // Factory constructor para criar User a partir de dados do Firestore
+  factory User.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return User(
+      uid: doc.id,
+      name: data['name'] ?? '',
+      email: data['email'] ?? '',
+      phoneNumber: data['phoneNumber'] ?? '',
+      createdAt: data['createdAt']?.toDate(),
+    );
+  }
+
+  // Converte User para Map para salvar no Firestore
+  Map<String, dynamic> toFirestore() {
+    return {
+      'name': name,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'createdAt': createdAt ?? FieldValue.serverTimestamp(),
+    };
+  }
+
   User copyWith({
+    String? uid,
     String? name,
     String? phoneNumber,
     String? email,
-    String? newPassword,
+    DateTime? createdAt,
   }) {
-    if (newPassword != null) {
-      return User(
-        name: name ?? this.name,
-        phoneNumber: phoneNumber ?? this.phoneNumber,
-        email: email ?? this.email,
-        password: newPassword,
-      );
-    } else {
-      return User.withExistingHash(
-        name: name ?? this.name,
-        phoneNumber: phoneNumber ?? this.phoneNumber,
-        email: email ?? this.email,
-        passwordHash: this.passwordHash,
-      );
-    }
-  }
-
-  bool checkPassword(String password) {
-    return BCrypt.checkpw(password, passwordHash);
+    return User(
+      uid: uid ?? this.uid,
+      name: name ?? this.name,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      email: email ?? this.email,
+      createdAt: createdAt ?? this.createdAt,
+    );
   }
 }

@@ -19,11 +19,16 @@ import 'controller/password_controller.dart';
 import 'package:blindex/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:blindex/controller/reports_controller.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 final g = GetIt.instance;
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  ); 
 
   g.registerSingleton<AppThemes>(AppThemes());
   g.registerSingleton<UserRepository>(UserRepository());
@@ -32,8 +37,10 @@ void main() {
   g.registerSingleton<LoginScreenController>(LoginScreenController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<PasswordController>(PasswordController());
   g.registerSingleton<ReportsController>(ReportsController());
-
   g.registerSingleton<ThemeProvider>(ThemeProvider());
+
+  // Carregar usuário atual se estiver logado
+  await g.get<UserRepository>().loadCurrentUser();
 
   runApp(
     DevicePreview(
@@ -59,7 +66,7 @@ class MainApp extends StatelessWidget {
       darkTheme: AppThemes.darkTheme,  
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       title: 'Blindex',
-      home: LoginView(),
+      home: const AuthWrapper(),
       routes: {
         '/about': (context) => const AboutView(),
         '/signUp': (context) => const SignUpView(),
@@ -76,6 +83,29 @@ class MainApp extends StatelessWidget {
             initialData: args,
           );
         },
+      },
+    );
+  }
+}
+
+// Widget para verificar autenticação
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final userRepository = GetIt.I<UserRepository>();
+    
+    return ListenableBuilder(
+      listenable: userRepository,
+      builder: (context, child) {
+        // Se há um usuário logado, vai para as senhas
+        if (userRepository.currentUser != null) {
+          return const PasswordListView();
+        }
+        
+        // Caso contrário, vai para o login
+        return const LoginView();
       },
     );
   }

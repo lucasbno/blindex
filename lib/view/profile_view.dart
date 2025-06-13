@@ -13,21 +13,38 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userRepository = GetIt.I<UserRepository>();
-    final user = userRepository.users[0];
-
+    
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 48.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Profile avatar section
-              Center(
-                child: Column(
-                  children: [
-                    _buildAvatar(context, user!),
+      body: ListenableBuilder(
+        listenable: userRepository,
+        builder: (context, child) {
+          final user = userRepository.currentUser;
+          
+          if (user == null) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Carregando perfil...'),
+                ],
+              ),
+            );
+          }
+          
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 48.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Profile avatar section
+                  Center(
+                    child: Column(
+                      children: [
+                        _buildAvatar(context, user),
                     const SizedBox(height: 16),
                     Text(
                       user.name,
@@ -53,9 +70,11 @@ class ProfileView extends StatelessWidget {
               
               // Action buttons
               _buildActionButtons(context),
-            ],
+              ],
+            ),
           ),
-        ),
+        );
+        },
       ),
       bottomNavigationBar: const AppBottomBar(
         currentScreen: '/profile',
@@ -64,7 +83,6 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context, User user) {
-    // Generate initials from name
   final initials = user.name.trim().isNotEmpty
     ? user.name.trim()[0].toUpperCase()
     : '?';
@@ -233,23 +251,64 @@ class ProfileView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         OutlinedButton(
-          onPressed: () {
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              '/login',
-              (route) => false,
+          onPressed: () async {
+            final userRepository = GetIt.I<UserRepository>();
+            
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
             );
+            
+            try {
+              await userRepository.signOut();
+              
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Text(
+                      'Erro ao fazer logout: $e',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                );
+              }
+            }
           },
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
+            side: const BorderSide(color: Colors.red),
           ),
-          child: const Text('Log Out'),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.logout, size: 20, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Sair', style: TextStyle(color: Colors.red)),
+            ],
+          ),
         ),
       ],
     );
   }
 }
 
-// Helper function
 int min(int a, int b) {
   return a < b ? a : b;
 }
