@@ -1,6 +1,8 @@
 import 'package:blindex/controller/pwd_recover_controller.dart';
 import 'package:blindex/repository/user_repository.dart';
 import 'package:blindex/repository/password_repository.dart';
+import 'package:blindex/repository/credit_card_repository.dart';
+import 'package:blindex/model/credit_card.dart';
 import 'package:blindex/theme/app_themes.dart';
 import 'package:blindex/view/about_view.dart';
 import 'package:blindex/view/edit_profile_view.dart';
@@ -11,6 +13,8 @@ import 'package:blindex/view/password_details_view.dart';
 import 'package:blindex/view/reports_view.dart';
 import 'package:blindex/view/sign_up_view.dart';
 import 'package:blindex/view/trash_view.dart';
+import 'package:blindex/view/cards_view.dart';
+import 'package:blindex/view/credit_card_create_view.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -18,6 +22,7 @@ import 'package:blindex/view/profile_view.dart';
 import 'controller/login_screen_controller.dart';
 import 'controller/sign_up_controller.dart';
 import 'controller/password_controller.dart';
+import 'controller/credit_card_controller.dart';
 import 'package:blindex/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:blindex/controller/reports_controller.dart';
@@ -35,10 +40,12 @@ void main() async {
   g.registerSingleton<AppThemes>(AppThemes());
   g.registerSingleton<UserRepository>(UserRepository());
   g.registerSingleton<PasswordRepository>(PasswordRepository());
+  g.registerSingleton<CreditCardRepository>(CreditCardRepository());
   g.registerSingleton<PwdRecoverController>(PwdRecoverController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<SignUpController>(SignUpController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<LoginScreenController>(LoginScreenController(GetIt.I.get<UserRepository>()));
   g.registerSingleton<PasswordController>(PasswordController());
+  g.registerSingleton<CreditCardController>(CreditCardController(GetIt.I.get<CreditCardRepository>()));
   g.registerSingleton<ReportsController>(ReportsController());
   g.registerSingleton<ThemeProvider>(ThemeProvider());
 
@@ -77,6 +84,7 @@ class MainApp extends StatelessWidget {
         '/forgot': (context) => const ForgotPwdView(),
         '/profile': (context) => const ProfileView(),
         '/passwords': (context) => const home.PasswordListView(),
+        '/cards': (context) => const CardsView(),
         '/reports': (context) => const ReportsView(),
         '/trash': (context) => const TrashView(),
         '/edit-profile': (context) => const EditProfileView(),
@@ -85,6 +93,12 @@ class MainApp extends StatelessWidget {
           return PasswordCreateView(
             isEditing: true,
             initialData: args,
+          );
+        },
+        '/card/edit': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return CreditCardCreateView(
+            card: CreditCard.fromMap(args),
           );
         },
       },

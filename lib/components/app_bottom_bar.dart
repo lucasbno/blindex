@@ -35,6 +35,14 @@ class AppBottomBar extends StatelessWidget {
           
           _buildNavButton(
             context: context,
+            route: '/cards',
+            isActive: currentScreen == '/cards',
+            icon: Icons.credit_card_outlined,
+            label: 'Cartões',
+          ),
+          
+          _buildNavButton(
+            context: context,
             route: '/reports',
             isActive: currentScreen == '/reports',
             icon: Icons.analytics_outlined,
