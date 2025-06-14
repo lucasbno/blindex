@@ -2,6 +2,7 @@ import 'package:blindex/components/app_bottom_bar.dart';
 import 'package:blindex/components/advanced_search_modal.dart';
 import 'package:blindex/model/password.dart';
 import 'package:blindex/view/delete_password_view.dart';
+import 'package:blindex/theme/app_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
@@ -220,10 +221,10 @@ class _PasswordListViewState extends State<PasswordListView> {
           size: 20,
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey[100],
+          backgroundColor: AppColors.cardBackground(context),
           foregroundColor: controller.hasActiveFilters 
-              ? Theme.of(context).primaryColor 
-              : Colors.grey[600],
+              ? AppColors.accent(context)
+              : AppColors.textColor(context).withOpacity(0.6),
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -231,7 +232,7 @@ class _PasswordListViewState extends State<PasswordListView> {
           elevation: 0,
         ).copyWith(
           overlayColor: WidgetStateProperty.all(
-            Theme.of(context).primaryColor.withOpacity(0.1),
+            AppColors.accent(context).withOpacity(0.1),
           ),
         ),
       ),
