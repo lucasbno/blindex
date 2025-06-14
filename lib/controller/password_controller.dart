@@ -26,13 +26,6 @@ class PasswordController extends ChangeNotifier {
       }).toList();
     }
     
-    if (_filters.siteFilter.isNotEmpty) {
-      final siteQuery = _filters.siteFilter.toLowerCase();
-      filtered = filtered.where((password) {
-        return password.site.toLowerCase().contains(siteQuery);
-      }).toList();
-    }
-    
     if (_filters.favoritesOnly) {
       filtered = filtered.where((password) => password.isFavorite).toList();
     }
@@ -92,7 +85,6 @@ class PasswordController extends ChangeNotifier {
 
   bool get hasActiveFilters {
     return _filters.query.isNotEmpty ||
-           _filters.siteFilter.isNotEmpty ||
            _filters.favoritesOnly ||
            _filters.sortBy != SortCriteria.title ||
            _filters.sortOrder != SortOrder.ascending;

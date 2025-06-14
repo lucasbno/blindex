@@ -169,7 +169,7 @@ class _PasswordListViewState extends State<PasswordListView> {
                     },
                     style: const TextStyle(fontSize: 15),
                     decoration: InputDecoration(
-                      hintText: 'Pesquisar senhas...',
+                      hintText: 'Buscar por título, login ou site...',
                       hintStyle: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 15,
@@ -223,8 +223,8 @@ class _PasswordListViewState extends State<PasswordListView> {
   Widget _buildFilterButton(BuildContext context, PasswordController controller) {
     return Container(
       height: 48,
-      width: 80,
-      child: ElevatedButton.icon(
+      width: 48,
+      child: ElevatedButton(
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -238,13 +238,9 @@ class _PasswordListViewState extends State<PasswordListView> {
             ),
           );
         },
-        icon: Icon(
+        child: Icon(
           Icons.tune,
-          size: 18,
-        ),
-        label: Text(
-          'Filtros',
-          style: TextStyle(fontSize: 12),
+          size: 20,
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: controller.hasActiveFilters 
@@ -253,7 +249,7 @@ class _PasswordListViewState extends State<PasswordListView> {
           foregroundColor: controller.hasActiveFilters 
               ? Colors.white 
               : Theme.of(context).primaryColor,
-          padding: EdgeInsets.symmetric(horizontal: 8),
+          padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -270,14 +266,6 @@ class _PasswordListViewState extends State<PasswordListView> {
       chips.add(_buildFilterChip(context, 'Favoritos', () {
         controller.updateFilters(
           controller.filters.copyWith(favoritesOnly: false),
-        );
-      }));
-    }
-    
-    if (controller.filters.siteFilter.isNotEmpty) {
-      chips.add(_buildFilterChip(context, 'Site: ${controller.filters.siteFilter}', () {
-        controller.updateFilters(
-          controller.filters.copyWith(siteFilter: ''),
         );
       }));
     }

@@ -18,14 +18,12 @@ class SearchFilters {
   final SortCriteria sortBy;
   final SortOrder sortOrder;
   final bool favoritesOnly;
-  final String siteFilter;
 
   SearchFilters({
     this.query = '',
     this.sortBy = SortCriteria.title,
     this.sortOrder = SortOrder.ascending,
     this.favoritesOnly = false,
-    this.siteFilter = '',
   });
 
   SearchFilters copyWith({
@@ -33,14 +31,12 @@ class SearchFilters {
     SortCriteria? sortBy,
     SortOrder? sortOrder,
     bool? favoritesOnly,
-    String? siteFilter,
   }) {
     return SearchFilters(
       query: query ?? this.query,
       sortBy: sortBy ?? this.sortBy,
       sortOrder: sortOrder ?? this.sortOrder,
       favoritesOnly: favoritesOnly ?? this.favoritesOnly,
-      siteFilter: siteFilter ?? this.siteFilter,
     );
   }
 }
@@ -69,7 +65,6 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
     super.initState();
     _filters = widget.initialFilters;
     _queryController.text = _filters.query;
-    _siteController.text = _filters.siteFilter;
   }
 
   @override
@@ -89,12 +84,8 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSearchField(),
-                  const SizedBox(height: 24),
                   _buildSortSection(),
                   const SizedBox(height: 24),
-                  _buildFiltersSection(),
-                  const SizedBox(height: 32),
                   _buildActionButtons(context),
                 ],
               ),
@@ -134,37 +125,6 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
     );
   }
 
-  Widget _buildSearchField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Termo de Pesquisa',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[700],
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _queryController,
-          onChanged: (value) {
-            setState(() {
-              _filters = _filters.copyWith(query: value);
-            });
-          },
-          decoration: InputDecoration(
-            hintText: 'Buscar por título, login ou site...',
-            prefixIcon: const Icon(Icons.search),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildSortSection() {
     return Column(
@@ -295,50 +255,6 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
     );
   }
 
-  Widget _buildFiltersSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Filtros',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[700],
-          ),
-        ),
-        const SizedBox(height: 12),
-        SwitchListTile(
-          title: const Text('Apenas Favoritos'),
-          subtitle: const Text('Mostrar somente senhas marcadas como favoritas'),
-          value: _filters.favoritesOnly,
-          onChanged: (value) {
-            setState(() {
-              _filters = _filters.copyWith(favoritesOnly: value);
-            });
-          },
-          activeColor: Theme.of(context).primaryColor,
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _siteController,
-          onChanged: (value) {
-            setState(() {
-              _filters = _filters.copyWith(siteFilter: value);
-            });
-          },
-          decoration: InputDecoration(
-            labelText: 'Filtrar por Site',
-            hintText: 'Ex: gmail.com, facebook.com...',
-            prefixIcon: const Icon(Icons.web),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildActionButtons(BuildContext context) {
     return Row(
