@@ -5,7 +5,6 @@ import 'package:blindex/view/delete_password_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../controller/password_controller.dart';
 import 'password_details_view.dart';
 
@@ -38,28 +37,6 @@ class _PasswordListViewState extends State<PasswordListView> {
 
   @override
   Widget build(BuildContext context) {
-    // Verificar se usuário está logado
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.lock_outline, size: 64, color: Colors.grey),
-              SizedBox(height: 16),
-              Text('Faça login para acessar suas senhas'),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                child: Text('Fazer Login'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     if (!_isInitialized) {
       return Scaffold(
         body: Center(
@@ -243,17 +220,19 @@ class _PasswordListViewState extends State<PasswordListView> {
           size: 20,
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: controller.hasActiveFilters 
-              ? Theme.of(context).primaryColor
-              : Colors.grey[100],
+          backgroundColor: Colors.grey[100],
           foregroundColor: controller.hasActiveFilters 
-              ? Colors.white 
-              : Theme.of(context).primaryColor,
+              ? Theme.of(context).primaryColor 
+              : Colors.grey[600],
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          elevation: controller.hasActiveFilters ? 2 : 0,
+          elevation: 0,
+        ).copyWith(
+          overlayColor: WidgetStateProperty.all(
+            Theme.of(context).primaryColor.withOpacity(0.1),
+          ),
         ),
       ),
     );

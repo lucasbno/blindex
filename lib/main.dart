@@ -15,6 +15,7 @@ import 'package:blindex/view/sign_up_view.dart';
 import 'package:blindex/view/trash_view.dart';
 import 'package:blindex/view/cards_view.dart';
 import 'package:blindex/view/credit_card_create_view.dart';
+import 'package:blindex/components/protected_route.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -78,27 +79,31 @@ class MainApp extends StatelessWidget {
       title: 'Blindex',
       home: const AuthWrapper(),
       routes: {
-        '/about': (context) => const AboutView(),
+        '/about': (context) => const ProtectedRoute(child: AboutView()),
         '/signUp': (context) => const SignUpView(),
         '/login': (context) => const LoginView(),
         '/forgot': (context) => const ForgotPwdView(),
-        '/profile': (context) => const ProfileView(),
-        '/passwords': (context) => const home.PasswordListView(),
-        '/cards': (context) => const CardsView(),
-        '/reports': (context) => const ReportsView(),
-        '/trash': (context) => const TrashView(),
-        '/edit-profile': (context) => const EditProfileView(),
+        '/profile': (context) => const ProtectedRoute(child: ProfileView()),
+        '/passwords': (context) => const ProtectedRoute(child: home.PasswordListView()),
+        '/cards': (context) => const ProtectedRoute(child: CardsView()),
+        '/reports': (context) => const ProtectedRoute(child: ReportsView()),
+        '/trash': (context) => const ProtectedRoute(child: TrashView()),
+        '/edit-profile': (context) => const ProtectedRoute(child: EditProfileView()),
         '/password/edit': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return PasswordCreateView(
-            isEditing: true,
-            initialData: args,
+          return ProtectedRoute(
+            child: PasswordCreateView(
+              isEditing: true,
+              initialData: args,
+            ),
           );
         },
         '/card/edit': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return CreditCardCreateView(
-            card: CreditCard.fromMap(args),
+          return ProtectedRoute(
+            child: CreditCardCreateView(
+              card: CreditCard.fromMap(args),
+            ),
           );
         },
       },
