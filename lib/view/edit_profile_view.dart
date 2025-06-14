@@ -1,6 +1,7 @@
 import 'package:blindex/theme/app_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../repository/user_repository.dart';
 import '../model/user_model.dart';
 
@@ -18,6 +19,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   bool _isLoading = false;
   bool _isInitialized = false;
   User? _currentUser;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -63,8 +65,18 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Future<void> _saveProfile() async {
-    if (_nameController.text.trim().isEmpty) {
-      _showErrorSnackBar('Nome não pode estar vazio');
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Center(
+            child: Text(
+              'Preencha todos os campos obrigatórios',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
       return;
     }
 
@@ -134,30 +146,36 @@ class _EditProfileViewState extends State<EditProfileView> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAvatarSection(context),
-              const SizedBox(height: 40),
-              _buildCurrentEmailSection(context),
-              const SizedBox(height: 24),
-              _buildTextField(
-                controller: _nameController,
-                label: 'Nome completo',
-                icon: Icons.person_outline_rounded,
-              ),
-              const SizedBox(height: 20),
-              _buildTextField(
-                controller: _phoneController,
-                label: 'Telefone',
-                icon: Icons.phone_outlined,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 32),
-              _buildPasswordResetSection(context),
-              const SizedBox(height: 40),
-              _buildSaveButton(context),
-            ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildAvatarSection(context),
+                const SizedBox(height: 40),
+                _buildCurrentEmailSection(context),
+                const SizedBox(height: 24),
+                _buildTextField(
+                  controller: _nameController,
+                  label: 'Nome completo',
+                  icon: Icons.person_outline_rounded,
+                  isRequired: true,
+                ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  controller: _phoneController,
+                  label: 'Telefone',
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  isRequired: true,
+                  useMask: true,
+                ),
+                const SizedBox(height: 32),
+                _buildPasswordResetSection(context),
+                const SizedBox(height: 40),
+                _buildSaveButton(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -302,14 +320,36 @@ class _EditProfileViewState extends State<EditProfileView> {
     required String label,
     required IconData icon,
     TextInputType? keyboardType,
+    bool isRequired = false,
+    bool useMask = false,
   }) {
+    var mobilePhoneMask = MaskTextInputFormatter(
+      mask: '(##) #####-####',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy,
+    );
+
     return TextFormField(
       controller: controller,
+      keyboardType: keyboardType,
+      inputFormatters: useMask ? [mobilePhoneMask] : null,
+      validator: isRequired ? (value) {
+        if (value == null || value.trim().isEmpty) {
+          return '$label é obrigatório';
+        }
+        return null;
+      } : null,
       decoration: InputDecoration(
         labelText: label,
+        hintText: useMask ? '(99) 04242-0564' : null,
         prefixIcon: Icon(icon),
+        filled: true,
+        fillColor: Theme.of(context).inputDecorationTheme.fillColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(
+            color: Theme.of(context).primaryColor,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -323,8 +363,19 @@ class _EditProfileViewState extends State<EditProfileView> {
             color: AppColors.accent(context),
           ),
         ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(
+            color: Colors.red,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(
+            color: Colors.red,
+          ),
+        ),
       ),
-      keyboardType: keyboardType,
     );
   }
 
