@@ -97,33 +97,27 @@ class PasswordController extends ChangeNotifier {
     }
   }
 
-  // Carregar senhas do Firestore
   Future<void> loadPasswords(String userId) async {
     _repository.addListener(_onRepositoryChanged);
     await _repository.loadPasswords(userId);
   }
 
-  // Callback para mudanças no repository
   void _onRepositoryChanged() {
     notifyListeners();
   }
 
-  // Stream para mudanças em tempo real
   Stream<List<Password>> watchPasswords(String userId) {
     return _repository.watchPasswords(userId);
   }
 
-  // Adicionar nova senha
   Future<bool> addPassword(Password password) async {
     return await _repository.addPassword(password);
   }
 
-  // Atualizar senha existente
   Future<bool> updatePassword(Password password) async {
     return await _repository.updatePassword(password);
   }
 
-  // Mover senha para lixeira
   Future<bool> moveToTrash(String passwordId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
@@ -131,7 +125,6 @@ class PasswordController extends ChangeNotifier {
     return await _repository.moveToTrash(passwordId, user.uid);
   }
 
-  // Deletar senha permanentemente
   Future<bool> deletePassword(String passwordId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
@@ -139,7 +132,6 @@ class PasswordController extends ChangeNotifier {
     return await _repository.deletePassword(passwordId, user.uid);
   }
 
-  // Restaurar senha da lixeira
   Future<bool> restoreFromTrash(String passwordId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
@@ -147,12 +139,10 @@ class PasswordController extends ChangeNotifier {
     return await _repository.restoreFromTrash(passwordId, user.uid);
   }
 
-  // Alternar favorito
   Future<bool> toggleFavorite(Password password) async {
     return await _repository.toggleFavorite(password);
   }
 
-  // Buscar senha por ID
   Password? findPasswordById(String id) {
     try {
       return passwords.firstWhere((password) => password.id == id);
@@ -161,10 +151,8 @@ class PasswordController extends ChangeNotifier {
     }
   }
 
-  // Obter apenas favoritos
   List<Password> get favoritePasswords => _repository.getFavoritePasswords();
 
-  // Limpar erro
   void clearError() {
     _repository.clearError();
   }

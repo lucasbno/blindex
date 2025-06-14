@@ -40,7 +40,6 @@ class ProfileView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Profile avatar section
                   Center(
                     child: Column(
                       children: [
@@ -58,17 +57,14 @@ class ProfileView extends StatelessWidget {
               
               const SizedBox(height: 32),
               
-              // Theme switcher
               _buildThemeSwitcher(context),
               
               const SizedBox(height: 32),
               
-              // User information section
               _buildInfoSection(context, user),
               
               const SizedBox(height: 32),
               
-              // Action buttons
               _buildActionButtons(context),
               ],
             ),
@@ -87,37 +83,17 @@ class ProfileView extends StatelessWidget {
     ? user.name.trim()[0].toUpperCase()
     : '?';
 
-    return Stack(
-      children: [
-        CircleAvatar(
-          radius: 60,
-          backgroundColor: AppColors.accent(context).withValues(alpha: 0.2),
-          child: Text(
-            initials,
-            style: TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-              color: AppColors.accent(context),
-            ),
-          ),
+    return CircleAvatar(
+      radius: 60,
+      backgroundColor: AppColors.accent(context).withValues(alpha: 0.2),
+      child: Text(
+        initials,
+        style: TextStyle(
+          fontSize: 36,
+          fontWeight: FontWeight.bold,
+          color: AppColors.accent(context),
         ),
-        Positioned(
-          bottom: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: AppColors.accent(context),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.edit,
-              size: 20,
-              color: Theme.of(context).scaffoldBackgroundColor,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

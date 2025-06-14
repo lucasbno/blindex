@@ -188,37 +188,17 @@ class _EditProfileViewState extends State<EditProfileView> {
         : 'U';
 
     return Center(
-      child: Stack(
-        children: [
-          CircleAvatar(
-            radius: 60,
-            backgroundColor: AppColors.accent(context).withValues(alpha: 0.2),
-            child: Text(
-              initials,
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: AppColors.accent(context),
-              ),
-            ),
+      child: CircleAvatar(
+        radius: 60,
+        backgroundColor: AppColors.accent(context).withValues(alpha: 0.2),
+        child: Text(
+          initials,
+          style: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+            color: AppColors.accent(context),
           ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.accent(context),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.camera_alt,
-                size: 24,
-                color: Theme.of(context).scaffoldBackgroundColor,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

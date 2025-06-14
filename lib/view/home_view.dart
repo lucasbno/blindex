@@ -499,15 +499,12 @@ class _PasswordListViewState extends State<PasswordListView> {
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             DeletePasswordDialog(password: password, onDelete: () async {
-              // Primeiro fecha o modal
               Navigator.of(context).pop();
               
-              // Pequeno delay para suavizar a transição
               await Future.delayed(const Duration(milliseconds: 300));
               
               if (password.id != null) {
                 try {
-                  // Executa a ação
                   final success = await controller.moveToTrash(password.id!);
                   
                   if (success) {

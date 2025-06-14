@@ -77,9 +77,33 @@ class _ReportsViewState extends State<ReportsView> with AutomaticKeepAliveClient
 
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: Colors.transparent,
+              title: const Text('Relatório de Segurança'),
+              centerTitle: true,
               elevation: 0,
-              toolbarHeight: 0,
+              automaticallyImplyLeading: false,
+              actions: [
+                Consumer<PasswordController>(
+                  builder: (context, controller, _) {
+                    if (controller.isLoading) {
+                      return const Padding(
+                        padding: EdgeInsets.only(right: 16.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    }
+                    return IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: () async {
+                        await controller.initialize();
+                      },
+                      tooltip: 'Atualizar relatório',
+                    );
+                  },
+                ),
+              ],
             ),
             body: SafeArea(
               child: RefreshIndicator(
@@ -89,7 +113,6 @@ class _ReportsViewState extends State<ReportsView> with AutomaticKeepAliveClient
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader(context),
                     _buildSecurityScore(
                       context,
                       securityScore,
@@ -112,42 +135,6 @@ class _ReportsViewState extends State<ReportsView> with AutomaticKeepAliveClient
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Relatório de Segurança',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          ),
-          Consumer<PasswordController>(
-            builder: (context, controller, _) {
-              if (controller.isLoading) {
-                return const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                );
-              }
-              return IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () async {
-                  await controller.initialize();
-                },
-                tooltip: 'Atualizar relatório',
-              );
-            },
-          ),
-        ],
       ),
     );
   }

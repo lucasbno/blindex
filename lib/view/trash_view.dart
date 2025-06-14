@@ -71,7 +71,6 @@ class _TrashViewState extends State<TrashView> {
   Future<void> _restorePassword(Password password) async {
     if (password.id == null || _userRepository.currentUser?.uid == null) return;
 
-    // Pequeno delay para suavizar a transição
     await Future.delayed(const Duration(milliseconds: 200));
 
     try {
@@ -120,7 +119,6 @@ class _TrashViewState extends State<TrashView> {
     );
 
     if (confirmed == true) {
-      // Pequeno delay para suavizar a transição após o fechamento do modal
       await Future.delayed(const Duration(milliseconds: 200));
       
       try {

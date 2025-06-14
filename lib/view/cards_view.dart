@@ -469,7 +469,6 @@ class _CardsViewState extends State<CardsView> {
     );
 
     if (confirmed == true && card.id != null) {
-      // Pequeno delay para suavizar a transição
       await Future.delayed(const Duration(milliseconds: 300));
       
       try {

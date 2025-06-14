@@ -50,7 +50,6 @@ void main() async {
   g.registerSingleton<ReportsController>(ReportsController());
   g.registerSingleton<ThemeProvider>(ThemeProvider());
 
-  // Carregar usuário atual se estiver logado
   await g.get<UserRepository>().loadCurrentUser();
 
   runApp(
@@ -111,7 +110,6 @@ class MainApp extends StatelessWidget {
   }
 }
 
-// Widget para verificar autenticação
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -122,12 +120,10 @@ class AuthWrapper extends StatelessWidget {
     return ListenableBuilder(
       listenable: userRepository,
       builder: (context, child) {
-        // Se há um usuário logado, vai para as senhas
         if (userRepository.currentUser != null) {
           return const home.PasswordListView();
         }
         
-        // Caso contrário, vai para o login
         return const LoginView();
       },
     );

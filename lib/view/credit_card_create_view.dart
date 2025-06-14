@@ -7,7 +7,7 @@ import '../controller/credit_card_controller.dart';
 import '../model/credit_card.dart';
 
 class CreditCardCreateView extends StatefulWidget {
-  final CreditCard? card; // Para edição
+  final CreditCard? card;
 
   const CreditCardCreateView({super.key, this.card});
 
@@ -407,7 +407,7 @@ class _CreditCardCreateViewState extends State<CreditCardCreateView> {
       obscureText: obscureText,
       maxLines: maxLines,
       textCapitalization: textCapitalization,
-      onChanged: (_) => setState(() {}), // Para atualizar o preview
+      onChanged: (_) => setState(() {}),
     );
   }
 
@@ -456,7 +456,6 @@ class CardNumberInputFormatter extends TextInputFormatter {
   }
 }
 
-// Formatador para data de expiração
 class ExpiryDateInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

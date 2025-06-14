@@ -106,7 +106,7 @@ class _SignUpViewState extends State<SignUpView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Background color
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -131,7 +131,7 @@ class _SignUpViewState extends State<SignUpView> {
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0), // To avoid edges
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -143,10 +143,9 @@ class _SignUpViewState extends State<SignUpView> {
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Makes the column size fit content
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
                 Center(
                   child: Text(
                     'Cadastre-se',
@@ -155,9 +154,8 @@ class _SignUpViewState extends State<SignUpView> {
                   ),
                 ),
 
-                const SizedBox(height: 26), // Spacing between title and fields
+                const SizedBox(height: 26),
 
-                // Username TextField
                 TextFormField(
                   controller: nameController,
                   validator: (value) {
@@ -173,7 +171,7 @@ class _SignUpViewState extends State<SignUpView> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor, // Accent color for border
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                     prefixIcon: const Icon(Icons.person_2_sharp),
@@ -182,7 +180,6 @@ class _SignUpViewState extends State<SignUpView> {
 
                 const SizedBox(height: 20),
 
-                // email TextField
                 TextFormField(
                   controller: emailController,
                   validator: (value) {
@@ -198,16 +195,15 @@ class _SignUpViewState extends State<SignUpView> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor, // Accent color for border
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                     prefixIcon: const Icon(Icons.email),
                   ),
                 ),
 
-                const SizedBox(height: 20), // Space between fields
+                const SizedBox(height: 20),
 
-                //Phone Number
                 TextFormField(
                   controller: phoneNumberController,
                   keyboardType: TextInputType.phone,
@@ -226,16 +222,15 @@ class _SignUpViewState extends State<SignUpView> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor, // Accent color for border
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                     prefixIcon: const Icon(Icons.smartphone),
                   ),
                 ),
 
-                const SizedBox(height: 20), // Space between fields
+                const SizedBox(height: 20),
 
-                // Password TextField
                 TextFormField(
                   controller: passwordController,
                   obscureText: passwordHidden,
@@ -269,9 +264,8 @@ class _SignUpViewState extends State<SignUpView> {
                   ),
                 ),
 
-                const SizedBox(height: 20), // Space between fields
+                const SizedBox(height: 20),
 
-                // Password Confirm TextField
                 TextFormField(
                   controller: pwdConfirmController,
                   obscureText: passwordConfirmHidden,
@@ -308,20 +302,19 @@ class _SignUpViewState extends State<SignUpView> {
                   ),
                 ),
 
-                const SizedBox(height: 24), // Space before button
+                const SizedBox(height: 24),
 
-                // Signup Button
                 ListenableBuilder(
                   listenable: signUpController,
                   builder: (context, child) {
                     return SizedBox(
-                      width: double.infinity, // Make button stretch
+                      width: double.infinity,
                       child: ElevatedButton(
                         onPressed: signUpController.isLoading ? null : () {
                           _onSignUpPress();
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 20), // Taller button
+                          padding: const EdgeInsets.symmetric(vertical: 20),
                         ),
                         child: signUpController.isLoading
                             ? const SizedBox(

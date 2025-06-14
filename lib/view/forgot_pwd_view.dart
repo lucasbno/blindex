@@ -41,7 +41,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
         );
         
         if (success) {
-          // Voltar para a tela de login após 2 segundos
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
               Navigator.pop(context);
@@ -81,7 +80,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title
                     Center(
                       child: Text(
                         'Recuperar Senha',
@@ -92,7 +90,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
                     
                     const SizedBox(height: 16),
                     
-                    // Description
                     Text(
                       'Digite seu email para receber um link de recuperação de senha.',
                       style: Theme.of(context).textTheme.bodyMedium,
@@ -101,7 +98,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
                     
                     const SizedBox(height: 24),
                     
-                    // Email field
                     TextFormField(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -130,7 +126,6 @@ class _ForgotPwdViewState extends State<ForgotPwdView> {
                     
                     const SizedBox(height: 24),
                     
-                    // Send button
                     ListenableBuilder(
                       listenable: forgotPwdController,
                       builder: (context, child) {
